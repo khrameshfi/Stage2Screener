@@ -96,6 +96,8 @@ PROGRESS_EVERY         = 25
 
 OUTPUT_CSV = f"output/stage2_screener_{MARKET}_results.csv"
 
+SYMBOL_EXCHANGE = {}   # populated for US during get_universe_symbols(); symbol -> "NASDAQ"/"NYSE"/etc.
+
 
 def nse_session():
     """A requests Session that's visited NSE's homepage first to pick up cookies.
@@ -141,12 +143,16 @@ def get_universe_symbols(cfg):
 
     if MARKET == "US":
         urls = [
-            "https://www.nasdaqtrader.com/dynamic/SymDir/nasdaqlisted.txt",
-            "https://www.nasdaqtrader.com/dynamic/SymDir/otherlisted.txt",
+            ("https://www.nasdaqtrader.com/dynamic/SymDir/nasdaqlisted.txt", "NASDAQ"),
+            ("https://www.nasdaqtrader.com/dynamic/SymDir/otherlisted.txt", None),  # exchange varies per row
         ]
+        # Best-effort mapping from NASDAQ Trader's single-letter exchange codes to
+        # TradingView's exchange prefixes. Covers the common cases; anything unmapped
+        # falls back to "NYSE" since that's the majority case in otherlisted.txt.
+        EXCHANGE_CODE_MAP = {"N": "NYSE", "A": "AMEX", "P": "ARCA", "Z": "BATS", "V": "IEXG"}
         try:
             symbols = []
-            for url in urls:
+            for url, fixed_exchange in urls:
                 resp = requests.get(url, headers=headers, timeout=15)
                 resp.raise_for_status()
                 lines = [
@@ -159,6 +165,12 @@ def get_universe_symbols(cfg):
                     df = df[df["Test Issue"] == "N"]
                 if EXCLUDE_ETFS and "ETF" in df.columns:
                     df = df[df["ETF"] == "N"]
+                for _, row in df.iterrows():
+                    sym = row.get(sym_col)
+                    if not isinstance(sym, str):
+                        continue
+                    exch = fixed_exchange or EXCHANGE_CODE_MAP.get(row.get("Exchange"), "NYSE")
+                    SYMBOL_EXCHANGE[sym] = exch
                 symbols.extend(df[sym_col].dropna().unique().tolist())
             # Keep plain alphabetic tickers only - this drops a small number of
             # special-class/warrant/unit tickers (e.g. "BRK.A" style symbols).
@@ -292,16 +304,18 @@ def passes_toggles(metrics, cfg):
     return True
 
 
-def write_tv_watchlist_in(out_df):
-    """Writes a ready-to-import TradingView watchlist .txt for India results
-    (format: NSE:TICKER,NSE:TICKER,... - matches TradingView's 'Import list' feature).
-    US isn't included here since NASDAQ vs NYSE isn't currently tracked per ticker -
-    can be added if you want the same auto-generation for the US watchlist."""
+def write_tv_watchlist(out_df, market):
+    """Writes a ready-to-import TradingView watchlist .txt (format: EXCHANGE:TICKER,...).
+    India always uses NSE. US uses the actual NASDAQ/NYSE/AMEX/etc. exchange looked up
+    per ticker (best-effort mapping from NASDAQ Trader's data - see get_universe_symbols)."""
     if out_df.empty:
         return
-    symbols = out_df["Ticker"].str.replace(".NS", "", regex=False)
-    tv_symbols = ["NSE:" + s for s in symbols]
-    path = "output/stage2_watchlist_IN.txt"
+    if market == "IN":
+        symbols = out_df["Ticker"].str.replace(".NS", "", regex=False)
+        tv_symbols = ["NSE:" + s for s in symbols]
+    else:
+        tv_symbols = [f"{SYMBOL_EXCHANGE.get(t, 'NASDAQ')}:{t}" for t in out_df["Ticker"]]
+    path = f"output/stage2_watchlist_{market}.txt"
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w") as f:
         f.write(",".join(tv_symbols))
@@ -374,8 +388,11 @@ def main():
     out.to_csv(OUTPUT_CSV, index=False)
 
     if MARKET == "IN":
-        write_tv_watchlist_in(out)
+        write_tv_watchlist(out, "IN")
         print("Also wrote output/stage2_watchlist_IN.txt (ready to import into TradingView)")
+    else:
+        write_tv_watchlist(out, "US")
+        print("Also wrote output/stage2_watchlist_US.txt (ready to import into TradingView)")
 
     print(f"\nDone. Checked {total}.")
     print(f"  Skipped (below market cap floor): {skipped_market_cap}")
