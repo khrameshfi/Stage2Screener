@@ -2,20 +2,32 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <style>
   :root {
-    --bg: #0B0E11;
-    --panel: #12161B;
-    --panel-2: #171C22;
-    --border: #262C34;
-    --text: #E8E6E1;
-    --text-muted: #8B92A0;
-    --accent: #F0A93E;
-    --accent-dim: #B87D1F;
-    --green: #3FB68B;
-    --red: #E5534B;
+    --bg: #12151C;
+    --panel: #1A1E28;
+    --panel-2: #20242F;
+    --border: #2C3140;
+    --text: #E9E7E2;
+    --text-muted: #98A0AC;
+    --accent: #C6A15B;
+    --accent-dim: #8F7640;
+    --green: #4FAE8A;
+    --red: #D1585A;
     --font-mono: 'SF Mono', Menlo, Consolas, 'Courier New', monospace;
     --font-ui: -apple-system, 'Segoe UI', Roboto, sans-serif;
   }
   #app-root { background: transparent; font-family: var(--font-ui); color: var(--text); }
+  .s2-wrap.light {
+    --bg: #FFFFFF;
+    --panel: #F3F3F1;
+    --panel-2: #EBEBE7;
+    --border: #DCDCD7;
+    --text: #1A1D23;
+    --text-muted: #6B7280;
+    --accent: #A8823F;
+    --accent-dim: #7A5F2E;
+    --green: #2E8B67;
+    --red: #B23A3D;
+  }
   .s2-wrap {
     background: var(--bg);
     border: 1px solid var(--border);
@@ -38,6 +50,14 @@
   .s2-status { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); text-align: right; }
   .s2-status a { color: var(--accent-dim); text-decoration: none; }
   .s2-status a:hover { text-decoration: underline; }
+  .s2-theme-toggle {
+    font-family: var(--font-mono); font-size: 11px;
+    background: var(--panel-2); color: var(--text);
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: 6px 11px; cursor: pointer; white-space: nowrap;
+    display: inline-block;
+  }
+  .s2-theme-toggle:hover { border-color: var(--accent-dim); }
 
   .s2-banner {
     font-family: var(--font-mono); font-size: 11.5px;
@@ -89,24 +109,25 @@
     position: sticky; top: 0;
   }
   table.s2-table thead th:hover, table.s2-table thead th.sorted { color: var(--accent); }
-  table.s2-table thead th.grp-c { border-top: 2px solid rgba(63,182,139,0.4); }
-  table.s2-table thead th.grp-l { border-top: 2px solid rgba(240,169,62,0.4); }
+  table.s2-table thead th.grp-c { border-top: 2px solid rgba(79,174,138,0.4); }
+  table.s2-table thead th.grp-l { border-top: 2px solid rgba(198,161,91,0.4); }
   table.s2-table tbody tr { border-bottom: 1px solid var(--border); }
   table.s2-table tbody tr:hover { background: var(--panel); }
   table.s2-table tbody tr:last-child { border-bottom: none; }
   .s2-ticker { color: var(--text); font-weight: 700; }
   .s2-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 9.5px; font-weight: 700; letter-spacing: 0.03em; }
-  .s2-badge.up { background: rgba(63,182,139,0.15); color: var(--green); }
-  .s2-badge.down { background: rgba(229,83,75,0.15); color: var(--red); }
-  .s2-badge.flat { background: rgba(139,146,160,0.15); color: var(--text-muted); }
-  .s2-badge.sig-both { background: rgba(63,182,139,0.2); color: var(--green); }
-  .s2-badge.sig-conf { background: rgba(63,182,139,0.13); color: var(--green); }
-  .s2-badge.sig-prov { background: rgba(240,169,62,0.18); color: var(--accent); }
+  .s2-badge.up { background: rgba(79,174,138,0.15); color: var(--green); }
+  .s2-badge.down { background: rgba(209,88,90,0.15); color: var(--red); }
+  .s2-badge.flat { background: rgba(152,160,172,0.15); color: var(--text-muted); }
+  .s2-badge.sig-both { background: rgba(79,174,138,0.2); color: var(--green); }
+  .s2-badge.sig-conf { background: rgba(79,174,138,0.13); color: var(--green); }
+  .s2-badge.sig-prov { background: rgba(198,161,91,0.18); color: var(--accent); }
   .s2-yes { color: var(--green); }
   .s2-no { color: var(--text-muted); }
   .s2-pos { color: var(--green); }
   .s2-neg { color: var(--red); }
   .s2-dim { color: var(--text-muted); }
+  .s2-cell { color: var(--text); }
   .s2-empty, .s2-loading, .s2-error {
     font-family: var(--font-mono); font-size: 12px; color: var(--text-muted);
     padding: 30px 10px; text-align: center;
@@ -129,6 +150,7 @@
 
   const state = {
     market: "IN",
+    theme: "dark",
     data: { IN: null, US: null },
     error: { IN: null, US: null },
     filter: "all",          // all | confirmed | provisional
@@ -141,30 +163,35 @@
 
   function fmtMktCap(v, mkt) {
     const n = Number(v);
-    if (!n || isNaN(n)) return "—";
-    if (mkt === "IN") return "\u20B9" + Math.round(n / 1e7).toLocaleString("en-IN") + " Cr";
-    if (n >= 1e9) return "$" + (n / 1e9).toFixed(2) + "B";
-    return "$" + (n / 1e6).toFixed(0) + "M";
+    if (!n || isNaN(n)) return '<span class="s2-dim">—</span>';
+    let out;
+    if (mkt === "IN") out = "\u20B9" + Math.round(n / 1e7).toLocaleString("en-IN") + " Cr";
+    else if (n >= 1e9) out = "$" + (n / 1e9).toFixed(2) + "B";
+    else out = "$" + (n / 1e6).toFixed(0) + "M";
+    return `<span class="s2-cell">${out}</span>`;
   }
   function fmtPrice(v, mkt) {
     const n = Number(v);
-    if (isNaN(n)) return "—";
-    return (mkt === "IN" ? "\u20B9" : "$") + n.toLocaleString(mkt === "IN" ? "en-IN" : "en-US",
+    if (isNaN(n)) return '<span class="s2-dim">—</span>';
+    const out = (mkt === "IN" ? "\u20B9" : "$") + n.toLocaleString(mkt === "IN" ? "en-IN" : "en-US",
       { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return `<span class="s2-cell">${out}</span>`;
   }
   function fmtVol(v) {
     const n = Number(v);
-    if (!n || isNaN(n)) return "—";
-    if (n >= 1e6) return (n / 1e6).toFixed(2) + "M";
-    if (n >= 1e3) return (n / 1e3).toFixed(0) + "K";
-    return String(n);
+    if (!n || isNaN(n)) return '<span class="s2-dim">—</span>';
+    let out;
+    if (n >= 1e6) out = (n / 1e6).toFixed(2) + "M";
+    else if (n >= 1e3) out = (n / 1e3).toFixed(0) + "K";
+    else out = String(n);
+    return `<span class="s2-cell">${out}</span>`;
   }
   function fmtWeekDate(v) {
     if (!v) return '<span class="s2-dim">—</span>';
     const d = new Date(v + "T00:00:00");
     if (isNaN(d)) return '<span class="s2-dim">—</span>';
     const mo = d.toLocaleString("en-US", { month: "short" });
-    return `${mo} ${d.getDate()}`;
+    return `<span class="s2-cell">${mo} ${d.getDate()}</span>`;
   }
   function fmtMrs(v) {
     if (v === null || v === undefined || v === "" || isNaN(Number(v))) return '<span class="s2-dim">—</span>';
@@ -305,13 +332,16 @@
     const canExport = rows.length > 0;
 
     root.innerHTML = `
-      <div class="s2-wrap">
+      <div class="s2-wrap ${state.theme === "light" ? "light" : ""}">
         <div class="s2-header">
           <div>
             <p class="s2-title">STAGE 2 SCREENER</p>
             <div class="s2-sub">Mansfield RS &middot; Weinstein Stage 2 &middot; NSE + US</div>
           </div>
           <div class="s2-status">
+            <div class="s2-theme-toggle" onclick="window.__s2theme()" style="margin-bottom:6px;">
+              ${state.theme === "dark" ? "&#9728; Light mode" : "&#9789; Dark mode"}
+            </div>
             live from <a href="https://github.com/${REPO}" target="_blank">github.com/${REPO}</a><br/>
             ${loading ? "loading&hellip;" : err ? "load failed" : rows.length + " of " + all.length + " shown"}
           </div>
@@ -345,6 +375,7 @@
     return visibleRows().map(r => r.tv_symbol).filter(Boolean).join(",");
   }
 
+  window.__s2theme = () => { state.theme = state.theme === "dark" ? "light" : "dark"; render(); };
   window.__s2tab = m => { state.market = m; render(); };
   window.__s2filter = f => { state.filter = f; render(); };
   window.__s2search = v => { state.search = v; render(); };
