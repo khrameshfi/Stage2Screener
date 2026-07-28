@@ -1,0 +1,344 @@
+<div id="app-root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+  :root {
+    --bg: #0B0E11;
+    --panel: #12161B;
+    --panel-2: #171C22;
+    --border: #262C34;
+    --text: #E8E6E1;
+    --text-muted: #8B92A0;
+    --accent: #F0A93E;
+    --accent-dim: #B87D1F;
+    --green: #3FB68B;
+    --red: #E5534B;
+    --font-display: Georgia, 'Iowan Old Style', 'Palatino Linotype', serif;
+    --font-mono: 'SF Mono', Menlo, Consolas, 'Courier New', monospace;
+    --font-ui: -apple-system, 'Segoe UI', Roboto, sans-serif;
+  }
+  #app-root { background: transparent; font-family: var(--font-ui); color: var(--text); }
+  .s2-wrap {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 22px 20px 16px;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  .s2-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 14px;
+    margin-bottom: 14px;
+  }
+  .s2-title {
+    font-family: var(--font-display);
+    font-size: 21px;
+    letter-spacing: 0.02em;
+    color: var(--accent);
+    font-weight: 700;
+    margin: 0;
+  }
+  .s2-sub {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+  .s2-status {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: right;
+  }
+  .s2-status a { color: var(--accent-dim); text-decoration: none; }
+  .s2-status a:hover { text-decoration: underline; }
+  .s2-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .s2-tabs { display: flex; gap: 6px; }
+  .s2-tab {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    background: var(--panel);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 14px;
+    cursor: pointer;
+    text-transform: uppercase;
+  }
+  .s2-tab.active { color: var(--bg); background: var(--accent); border-color: var(--accent); font-weight: 700; }
+  .s2-search {
+    flex: 1;
+    min-width: 140px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 7px 10px;
+    color: var(--text);
+  }
+  .s2-search::placeholder { color: var(--text-muted); }
+  .s2-count { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+  .s2-refresh {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    background: var(--panel);
+    color: var(--accent-dim);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 7px 10px;
+    cursor: pointer;
+  }
+  .s2-refresh:hover { color: var(--accent); border-color: var(--accent-dim); }
+  .s2-table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; }
+  table.s2-table { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 12px; }
+  table.s2-table th, table.s2-table td { padding: 8px 10px; text-align: right; white-space: nowrap; }
+  table.s2-table th:first-child, table.s2-table td:first-child { text-align: left; }
+  table.s2-table thead th {
+    background: var(--panel-2);
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+  }
+  table.s2-table thead th:hover { color: var(--accent); }
+  table.s2-table thead th.sorted { color: var(--accent); }
+  table.s2-table tbody tr { border-bottom: 1px solid var(--border); }
+  table.s2-table tbody tr:hover { background: var(--panel); }
+  table.s2-table tbody tr:last-child { border-bottom: none; }
+  .s2-ticker { color: var(--text); font-weight: 700; }
+  .s2-badge {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+  }
+  .s2-badge.up { background: rgba(63,182,139,0.15); color: var(--green); }
+  .s2-badge.down { background: rgba(229,83,75,0.15); color: var(--red); }
+  .s2-badge.flat { background: rgba(139,146,160,0.15); color: var(--text-muted); }
+  .s2-yes { color: var(--green); }
+  .s2-no { color: var(--text-muted); }
+  .s2-fresh { color: var(--accent); font-weight: 700; }
+  .s2-mrs-pos { color: var(--green); }
+  .s2-empty, .s2-loading, .s2-error {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-muted);
+    padding: 30px 10px;
+    text-align: center;
+  }
+  .s2-error { color: var(--red); }
+  .s2-footer {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 12px;
+    text-align: center;
+  }
+  @media (max-width: 640px) {
+    .s2-header { flex-direction: column; }
+    .s2-status { text-align: left; }
+  }
+</style>
+<script>
+(function () {
+  const REPO = "khrameshfi/Stage2Screener";
+  const BRANCH = "main";
+  const URLS = {
+    IN: `https://raw.githubusercontent.com/${REPO}/${BRANCH}/output/stage2_screener_IN_results.csv`,
+    US: `https://raw.githubusercontent.com/${REPO}/${BRANCH}/output/stage2_screener_US_results.csv`,
+  };
+
+  const state = {
+    market: "IN",
+    data: { IN: null, US: null },
+    error: { IN: null, US: null },
+    sortKey: "mrs",
+    sortDir: -1,
+    search: "",
+  };
+
+  const root = document.getElementById("app-root");
+
+  function fmtMarketCap(val, market) {
+    const n = Number(val);
+    if (!n || isNaN(n)) return "—";
+    if (market === "IN") return "\u20B9" + Math.round(n / 1e7).toLocaleString("en-IN") + " Cr";
+    if (n >= 1e9) return "$" + (n / 1e9).toFixed(2) + "B";
+    return "$" + (n / 1e6).toFixed(0) + "M";
+  }
+  function fmtPrice(val, market) {
+    const n = Number(val);
+    if (isNaN(n)) return "—";
+    return (market === "IN" ? "\u20B9" : "$") + n.toLocaleString(market === "IN" ? "en-IN" : "en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function fmtVol(val) {
+    const n = Number(val);
+    if (!n || isNaN(n)) return "—";
+    if (n >= 1e6) return (n / 1e6).toFixed(2) + "M";
+    if (n >= 1e3) return (n / 1e3).toFixed(0) + "K";
+    return String(n);
+  }
+  function fmtWeeks(val) {
+    if (val === "" || val === null || val === undefined || isNaN(Number(val))) return "—";
+    const n = Number(val);
+    if (n === 0) return '<span class="s2-fresh">This week</span>';
+    if (n === 1) return '<span class="s2-fresh">Last week</span>';
+    return n + "wk ago";
+  }
+  function slopeBadge(val) {
+    if (val === "up") return '<span class="s2-badge up">&#9650; UP</span>';
+    if (val === "down") return '<span class="s2-badge down">&#9660; DOWN</span>';
+    if (val === "flat") return '<span class="s2-badge flat">&#9679; FLAT</span>';
+    return '<span class="s2-badge flat">—</span>';
+  }
+  function boolMark(val) {
+    const v = String(val).toLowerCase();
+    if (v === "true") return '<span class="s2-yes">&#10003;</span>';
+    if (v === "false") return '<span class="s2-no">&#10007;</span>';
+    return '<span class="s2-no">—</span>';
+  }
+
+  function parseCSV(text) {
+    const parsed = Papa.parse(text.trim(), { header: true, dynamicTyping: true, skipEmptyLines: true });
+    return parsed.data;
+  }
+
+  async function loadMarket(mkt) {
+    try {
+      const resp = await fetch(URLS[mkt] + "?t=" + Date.now());
+      if (!resp.ok) throw new Error("HTTP " + resp.status);
+      const text = await resp.text();
+      state.data[mkt] = parseCSV(text);
+      state.error[mkt] = null;
+    } catch (e) {
+      state.error[mkt] = e.message || "Fetch failed";
+    }
+    render();
+  }
+
+  function sortedFiltered() {
+    const rows = state.data[state.market] || [];
+    const q = state.search.trim().toUpperCase();
+    let filtered = q ? rows.filter(r => (r.Ticker || "").toUpperCase().includes(q)) : rows.slice();
+    filtered.sort((a, b) => {
+      let av = a[state.sortKey], bv = b[state.sortKey];
+      if (typeof av === "string" && typeof bv === "string") return av.localeCompare(bv) * state.sortDir;
+      av = Number(av); bv = Number(bv);
+      if (isNaN(av)) av = -Infinity;
+      if (isNaN(bv)) bv = -Infinity;
+      return (av - bv) * state.sortDir;
+    });
+    return filtered;
+  }
+
+  const COLS = [
+    { key: "Ticker", label: "Ticker" },
+    { key: "mrs", label: "MRS" },
+    { key: "weeks_since_rs_cross", label: "RS Cross" },
+    { key: "above_30ma", label: "Above 30MA" },
+    { key: "ma_slope", label: "MA Slope" },
+    { key: "vol_spike_recent", label: "Vol Spike" },
+    { key: "last_close", label: "Price" },
+    { key: "market_cap", label: "Mkt Cap" },
+    { key: "avg_volume", label: "Avg Vol" },
+  ];
+
+  function setSort(key) {
+    if (state.sortKey === key) state.sortDir *= -1;
+    else { state.sortKey = key; state.sortDir = -1; }
+    render();
+  }
+
+  function render() {
+    const mkt = state.market;
+    const loading = state.data[mkt] === null && !state.error[mkt];
+    const err = state.error[mkt];
+    const rows = err || loading ? [] : sortedFiltered();
+
+    let bodyHtml;
+    if (loading) {
+      bodyHtml = `<div class="s2-loading">Fetching latest ${mkt === "IN" ? "India" : "US"} results from GitHub&hellip;</div>`;
+    } else if (err) {
+      bodyHtml = `<div class="s2-error">Could not load results (${err}). The repo or file may not exist yet, or the latest scan hasn't committed results.</div>`;
+    } else if (rows.length === 0) {
+      bodyHtml = `<div class="s2-empty">No stocks matched, or the search filter excluded everything.</div>`;
+    } else {
+      bodyHtml = `<div class="s2-table-wrap"><table class="s2-table"><thead><tr>${
+        COLS.map(c => `<th class="${state.sortKey === c.key ? "sorted" : ""}" onclick="window.__s2sort('${c.key}')">${c.label}${state.sortKey === c.key ? (state.sortDir === -1 ? " &#9660;" : " &#9650;") : ""}</th>`).join("")
+      }</tr></thead><tbody>${
+        rows.map(r => `<tr>
+          <td class="s2-ticker">${r.Ticker || ""}</td>
+          <td class="${Number(r.mrs) > 0 ? "s2-mrs-pos" : ""}">${Number(r.mrs).toFixed(2)}</td>
+          <td>${fmtWeeks(r.weeks_since_rs_cross)}</td>
+          <td>${boolMark(r.above_30ma)}</td>
+          <td>${slopeBadge(r.ma_slope)}</td>
+          <td>${boolMark(r.vol_spike_recent)}</td>
+          <td>${fmtPrice(r.last_close, mkt)}</td>
+          <td>${fmtMarketCap(r.market_cap, mkt)}</td>
+          <td>${fmtVol(r.avg_volume)}</td>
+        </tr>`).join("")
+      }</tbody></table></div>`;
+    }
+
+    root.innerHTML = `
+      <div class="s2-wrap">
+        <div class="s2-header">
+          <div>
+            <p class="s2-title">STAGE 2 SCREENER</p>
+            <div class="s2-sub">Mansfield RS &middot; Weinstein Stage 2 &middot; NSE + US</div>
+          </div>
+          <div class="s2-status">
+            live from <a href="https://github.com/${REPO}" target="_blank">github.com/${REPO}</a><br/>
+            ${loading ? "loading&hellip;" : err ? "load failed" : rows.length + " match" + (rows.length === 1 ? "" : "es") + " shown"}
+          </div>
+        </div>
+        <div class="s2-controls">
+          <div class="s2-tabs">
+            <div class="s2-tab ${mkt === "IN" ? "active" : ""}" onclick="window.__s2tab('IN')">India</div>
+            <div class="s2-tab ${mkt === "US" ? "active" : ""}" onclick="window.__s2tab('US')">US</div>
+          </div>
+          <input class="s2-search" placeholder="Filter by ticker&hellip;" value="${state.search}" oninput="window.__s2search(this.value)" />
+          <div class="s2-refresh" onclick="window.__s2refresh()">&#8635; Refresh</div>
+        </div>
+        ${bodyHtml}
+        <div class="s2-footer">Data refreshes automatically each scheduled scan &middot; click column headers to sort</div>
+      </div>
+    `;
+  }
+
+  window.__s2tab = function (mkt) { state.market = mkt; render(); };
+  window.__s2sort = setSort;
+  window.__s2search = function (v) { state.search = v; render(); };
+  window.__s2refresh = function () {
+    state.data[state.market] = null;
+    state.error[state.market] = null;
+    render();
+    loadMarket(state.market);
+  };
+
+  render();
+  loadMarket("IN");
+  loadMarket("US");
+})();
+</script>
