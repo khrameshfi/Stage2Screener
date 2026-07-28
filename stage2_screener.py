@@ -292,6 +292,21 @@ def passes_toggles(metrics, cfg):
     return True
 
 
+def write_tv_watchlist_in(out_df):
+    """Writes a ready-to-import TradingView watchlist .txt for India results
+    (format: NSE:TICKER,NSE:TICKER,... - matches TradingView's 'Import list' feature).
+    US isn't included here since NASDAQ vs NYSE isn't currently tracked per ticker -
+    can be added if you want the same auto-generation for the US watchlist."""
+    if out_df.empty:
+        return
+    symbols = out_df["Ticker"].str.replace(".NS", "", regex=False)
+    tv_symbols = ["NSE:" + s for s in symbols]
+    path = "output/stage2_watchlist_IN.txt"
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w") as f:
+        f.write(",".join(tv_symbols))
+
+
 def main():
     cfg = MARKET_CONFIG[MARKET]
     print(f"Market: {MARKET}")
@@ -357,6 +372,10 @@ def main():
         out = out.sort_values("mrs", ascending=False)
     os.makedirs(os.path.dirname(OUTPUT_CSV), exist_ok=True)
     out.to_csv(OUTPUT_CSV, index=False)
+
+    if MARKET == "IN":
+        write_tv_watchlist_in(out)
+        print("Also wrote output/stage2_watchlist_IN.txt (ready to import into TradingView)")
 
     print(f"\nDone. Checked {total}.")
     print(f"  Skipped (below market cap floor): {skipped_market_cap}")
