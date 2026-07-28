@@ -98,6 +98,35 @@
   .s2-top-btn.disabled { opacity: 0.35; cursor: default; pointer-events: none; }
 
   .s2-table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; }
+  .s2-cards { display: none; }
+
+  .s2-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+  }
+  .s2-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .s2-card-top .s2-ticker { font-size: 15px; }
+  .s2-card-meta {
+    font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);
+    padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px solid var(--border);
+  }
+  .s2-card-cols { display: flex; gap: 10px; }
+  .s2-card-col { flex: 1; min-width: 0; }
+  .s2-card-col-title {
+    font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+    letter-spacing: 0.06em; margin-bottom: 6px;
+  }
+  .s2-card-col-title.cf { color: var(--green); }
+  .s2-card-col-title.pv { color: var(--accent); }
+  .s2-card-row {
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--font-mono); font-size: 12px;
+    padding: 3px 0;
+  }
+  .s2-card-row .s2-card-label { color: var(--text-muted); font-size: 10.5px; }
   table.s2-table { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 12px; }
   table.s2-table th, table.s2-table td { padding: 8px 9px; text-align: right; white-space: nowrap; }
   table.s2-table th:first-child, table.s2-table td:first-child { text-align: left; }
@@ -135,9 +164,16 @@
   }
   .s2-error { color: var(--red); }
   .s2-footer { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); margin-top: 12px; text-align: center; line-height: 1.6; }
-  @media (max-width: 640px) {
+  @media (max-width: 680px) {
+    .s2-wrap { padding: 16px 12px 12px; }
     .s2-header { flex-direction: column; }
     .s2-status { text-align: left; }
+    .s2-table-wrap { display: none; }
+    .s2-cards { display: block; }
+    .s2-controls { gap: 6px; }
+    .s2-search { flex-basis: 100%; order: 1; padding: 9px 10px; font-size: 13px; }
+    .s2-tab, .s2-fbtn, .s2-top-btn { padding: 9px 13px; font-size: 12px; }
+    .s2-card-cols { flex-direction: column; gap: 10px; }
   }
 </style>
 <script>
@@ -327,7 +363,33 @@
           <td>${fmtMktCap(r.market_cap, mkt)}</td>
           <td>${fmtVol(r.avg_volume)}</td>
         </tr>`).join("")}</tbody>
-      </table></div>`;
+      </table></div>
+      <div class="s2-cards">${rows.map(r => `
+        <div class="s2-card">
+          <div class="s2-card-top">
+            <a class="s2-ticker" href="https://www.tradingview.com/chart/?symbol=${encodeURIComponent(r.tv_symbol || r.Ticker || "")}" target="_blank" rel="noopener">${r.Ticker || ""}</a>
+            ${sigBadge(r.signal)}
+          </div>
+          <div class="s2-card-meta">${fmtPrice(r.last_close, mkt)} &middot; ${fmtMktCap(r.market_cap, mkt)} &middot; Vol ${fmtVol(r.avg_volume)}</div>
+          <div class="s2-card-cols">
+            <div class="s2-card-col">
+              <div class="s2-card-col-title cf">CONFIRMED</div>
+              <div class="s2-card-row"><span class="s2-card-label">MRS</span>${fmtMrs(r.mrs_confirmed)}</div>
+              <div class="s2-card-row"><span class="s2-card-label">Crossed</span>${fmtWeekDate(r.cross_week_confirmed)}</div>
+              <div class="s2-card-row"><span class="s2-card-label">&gt;30MA</span>${boolMark(r.above_30ma_confirmed)}</div>
+              <div class="s2-card-row"><span class="s2-card-label">Slope</span>${slopeBadge(r.ma_slope_confirmed)}</div>
+              <div class="s2-card-row"><span class="s2-card-label">Vol Spike</span>${boolMark(r.vol_spike_confirmed)}</div>
+            </div>
+            <div class="s2-card-col">
+              <div class="s2-card-col-title pv">LIVE</div>
+              <div class="s2-card-row"><span class="s2-card-label">MRS</span>${fmtMrs(r.mrs_live)}</div>
+              <div class="s2-card-row"><span class="s2-card-label">Crossed</span>${fmtWeekDate(r.cross_week_live)}</div>
+              <div class="s2-card-row"><span class="s2-card-label">&gt;30MA</span>${boolMark(r.above_30ma_live)}</div>
+              <div class="s2-card-row"><span class="s2-card-label">Slope</span>${slopeBadge(r.ma_slope_live)}</div>
+              <div class="s2-card-row"><span class="s2-card-label">Vol Spike</span>${boolMark(r.vol_spike_live)}</div>
+            </div>
+          </div>
+        </div>`).join("")}</div>`;
     }
 
     const canExport = rows.length > 0;
