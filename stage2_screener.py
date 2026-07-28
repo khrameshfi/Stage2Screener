@@ -28,6 +28,8 @@ caps early rather than downloading years of data for stocks you don't want anywa
 import os
 import time
 import io
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 import requests
 import pandas as pd
 import yfinance as yf
@@ -97,6 +99,54 @@ PROGRESS_EVERY         = 25
 OUTPUT_CSV = f"output/stage2_screener_{MARKET}_results.csv"
 
 SYMBOL_EXCHANGE = {}   # populated for US during get_universe_symbols(); symbol -> "NASDAQ"/"NYSE"/etc.
+
+# ---------------- PARTIAL vs CLOSED WEEK DETECTION ----------------
+# Yahoo stamps each weekly bar with its week-START Monday. We compare that against
+# the current week's Monday in MARKET-LOCAL time to decide whether the newest bar
+# is a finished week ("closed") or the still-forming current week ("partial").
+MARKET_TZ = {"IN": "Asia/Kolkata", "US": "America/New_York"}
+# Local wall-clock time the week's final session ends (Friday).
+MARKET_WEEK_CLOSE = {"IN": (15, 30), "US": (16, 0)}   # (hour, minute)
+
+
+def market_now():
+    """Current time in the selected market's local timezone."""
+    return datetime.now(ZoneInfo(MARKET_TZ[MARKET]))
+
+
+def current_week_monday():
+    """The Monday (date) of the week we're currently in, market-local."""
+    now = market_now()
+    return (now - timedelta(days=now.weekday())).date()
+
+
+def week_has_closed(week_monday):
+    """True once that week's final session (Friday close) has passed, market-local.
+
+    Deliberately conservative: we only call a week closed after its Friday close
+    time has elapsed. On an early-closure holiday week this may briefly still say
+    'partial' for an already-finished week - erring toward under-claiming
+    confirmation rather than over-claiming it."""
+    hh, mm = MARKET_WEEK_CLOSE[MARKET]
+    friday = week_monday + timedelta(days=4)
+    close_dt = datetime(friday.year, friday.month, friday.day, hh, mm,
+                        tzinfo=ZoneInfo(MARKET_TZ[MARKET]))
+    return market_now() >= close_dt
+
+
+def classify_last_bar(df):
+    """Given a weekly-indexed DataFrame, returns (last_bar_week_date, 'closed'|'partial').
+
+    'partial' means the newest bar is the current week and that week hasn't finished
+    trading yet - so its close, volume, and therefore every metric derived from it
+    can still change before the week ends."""
+    if df is None or df.empty:
+        return None, None
+    last_week = pd.Timestamp(df.index[-1]).date()
+    if last_week >= current_week_monday() and not week_has_closed(last_week):
+        return last_week, "partial"
+    return last_week, "closed"
+# ------------------------------------------------------------------
 
 
 def nse_session():
@@ -240,9 +290,13 @@ def classify_slope(ma_series):
 
 
 def weeks_since_rs_cross(mrs_series, max_lookback=26):
-    """0 = RS crossed positive this week, 1 = last week, etc. None if not currently positive."""
+    """Returns (weeks_since_cross, cross_week_date).
+    weeks_since_cross: 0 = crossed on the newest bar, 1 = one bar before it, etc.
+    None if MRS isn't currently positive. cross_week_date is the actual week-start
+    date of the bar where it went positive - reported so labels can use real dates
+    rather than ambiguous relative wording."""
     if pd.isna(mrs_series.iloc[-1]) or mrs_series.iloc[-1] <= 0:
-        return None
+        return None, None
     count_positive = 0
     for i in range(1, min(max_lookback, len(mrs_series)) + 1):
         val = mrs_series.iloc[-i]
@@ -250,11 +304,16 @@ def weeks_since_rs_cross(mrs_series, max_lookback=26):
             count_positive += 1
         else:
             break
-    return count_positive - 1
+    weeks = count_positive - 1
+    cross_idx = len(mrs_series) - count_positive
+    cross_date = pd.Timestamp(mrs_series.index[cross_idx]).date() if cross_idx >= 0 else None
+    return weeks, cross_date
 
 
 def compute_metrics(stock_df, bench_close):
-    """Returns a dict of every underlying metric for one stock, or None if there's not enough history."""
+    """Returns a dict of every underlying metric, computed on the LAST bar of whatever
+    DataFrame it's handed. Caller decides whether that df includes a partial week -
+    this function makes no assumption about it. None if there's not enough history."""
     df = stock_df.copy().join(bench_close.rename("BenchClose"), how="inner")
     min_len = MRS_LEN + VOL_AVG_LEN + max(VOL_LOOKBACK_WEEKS, MA_SLOPE_LOOKBACK_WEEKS) + 5
     if len(df) < min_len:
@@ -274,9 +333,13 @@ def compute_metrics(stock_df, bench_close):
     recent_vol = df["Volume"].iloc[-VOL_LOOKBACK_WEEKS:]
     recent_avg = avg_vol.iloc[-VOL_LOOKBACK_WEEKS:]
 
+    weeks, cross_date = weeks_since_rs_cross(mrs)
+
     return {
         "mrs": round(float(mrs.iloc[-1]), 2),
-        "weeks_since_rs_cross": weeks_since_rs_cross(mrs),
+        "weeks_since_rs_cross": weeks,
+        "cross_week": cross_date.isoformat() if cross_date else None,
+        "bar_week": pd.Timestamp(df.index[-1]).date().isoformat(),
         "above_30ma": bool(latest_close > latest_ma30) if pd.notna(latest_ma30) else None,
         "ma_slope": classify_slope(ma30),
         "vol_spike_recent": bool((recent_vol > VOL_MULT * recent_avg).any()),
@@ -305,16 +368,19 @@ def passes_toggles(metrics, cfg):
 
 
 def write_tv_watchlist(out_df, market):
-    """Writes a ready-to-import TradingView watchlist .txt (format: EXCHANGE:TICKER,...).
-    India always uses NSE. US uses the actual NASDAQ/NYSE/AMEX/etc. exchange looked up
-    per ticker (best-effort mapping from NASDAQ Trader's data - see get_universe_symbols)."""
+    """Writes a ready-to-import TradingView watchlist .txt containing CONFIRMED signals
+    only (i.e. BOTH or CONFIRMED - excludes provisional/partial-week-only matches),
+    since that's the trustworthy list. The dashboard builds filter-aware watchlists
+    client-side if you want the provisional ones too."""
     if out_df.empty:
         return
-    if market == "IN":
-        symbols = out_df["Ticker"].str.replace(".NS", "", regex=False)
-        tv_symbols = ["NSE:" + s for s in symbols]
+    conf = out_df[out_df["signal"].isin(["BOTH", "CONFIRMED"])]
+    if conf.empty:
+        tv_symbols = []
+    elif market == "IN":
+        tv_symbols = ["NSE:" + s.replace(".NS", "") for s in conf["Ticker"]]
     else:
-        tv_symbols = [f"{SYMBOL_EXCHANGE.get(t, 'NASDAQ')}:{t}" for t in out_df["Ticker"]]
+        tv_symbols = [f"{SYMBOL_EXCHANGE.get(t, 'NASDAQ')}:{t}" for t in conf["Ticker"]]
     path = f"output/stage2_watchlist_{market}.txt"
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w") as f:
@@ -371,33 +437,86 @@ def main():
             time.sleep(PAUSE_BETWEEN_REQUESTS)
             continue
 
-        metrics = compute_metrics(stock_df, bench_close)
-        if metrics is None:
+        last_week, bar_status = classify_last_bar(stock_df)
+
+        # LIVE reading: includes the current partial week (if there is one).
+        live = compute_metrics(stock_df, bench_close)
+        # CONFIRMED reading: the partial week is dropped entirely, so every metric -
+        # RS, the 30-week MA, and the volume spike - is computed only on finished weeks.
+        if bar_status == "partial" and len(stock_df) > 1:
+            confirmed = compute_metrics(stock_df.iloc[:-1], bench_close)
+        else:
+            confirmed = live   # nothing partial to exclude; the two readings are identical
+
+        if live is None and confirmed is None:
             time.sleep(PAUSE_BETWEEN_REQUESTS)
             continue
 
-        if passes_toggles(metrics, cfg):
-            results.append({"Ticker": ticker, "market_cap": market_cap, **metrics})
+        pass_live = bool(live) and passes_toggles(live, cfg)
+        pass_confirmed = bool(confirmed) and passes_toggles(confirmed, cfg)
+
+        if pass_confirmed and pass_live:
+            signal = "BOTH"
+        elif pass_confirmed:
+            signal = "CONFIRMED"
+        elif pass_live:
+            signal = "PROVISIONAL"
+        else:
+            signal = None
+
+        if signal:
+            tv_symbol = ("NSE:" + ticker.replace(".NS", "")) if MARKET == "IN" \
+                else f"{SYMBOL_EXCHANGE.get(ticker, 'NASDAQ')}:{ticker}"
+            results.append({
+                "Ticker": ticker,
+                "tv_symbol": tv_symbol,
+                "signal": signal,
+                "bar_status": bar_status,
+                "last_bar_week": last_week.isoformat() if last_week else None,
+                "market_cap": market_cap,
+                # confirmed (finished weeks only)
+                "mrs_confirmed": confirmed["mrs"] if confirmed else None,
+                "cross_week_confirmed": confirmed["cross_week"] if confirmed else None,
+                "above_30ma_confirmed": confirmed["above_30ma"] if confirmed else None,
+                "ma_slope_confirmed": confirmed["ma_slope"] if confirmed else None,
+                "vol_spike_confirmed": confirmed["vol_spike_recent"] if confirmed else None,
+                # live (includes the in-progress week)
+                "mrs_live": live["mrs"] if live else None,
+                "cross_week_live": live["cross_week"] if live else None,
+                "above_30ma_live": live["above_30ma"] if live else None,
+                "ma_slope_live": live["ma_slope"] if live else None,
+                "vol_spike_live": live["vol_spike_recent"] if live else None,
+                # shared
+                "last_close": (live or confirmed)["last_close"],
+                "avg_volume": (live or confirmed)["avg_volume"],
+            })
 
         time.sleep(PAUSE_BETWEEN_REQUESTS)
 
     out = pd.DataFrame(results)
     if not out.empty:
-        out = out.sort_values("mrs", ascending=False)
+        # Sort confirmed signals first, then by strength of the confirmed reading.
+        order = {"BOTH": 0, "CONFIRMED": 1, "PROVISIONAL": 2}
+        out["_ord"] = out["signal"].map(order).fillna(3)
+        out = out.sort_values(["_ord", "mrs_confirmed", "mrs_live"],
+                              ascending=[True, False, False]).drop(columns=["_ord"])
     os.makedirs(os.path.dirname(OUTPUT_CSV), exist_ok=True)
     out.to_csv(OUTPUT_CSV, index=False)
 
-    if MARKET == "IN":
-        write_tv_watchlist(out, "IN")
-        print("Also wrote output/stage2_watchlist_IN.txt (ready to import into TradingView)")
-    else:
-        write_tv_watchlist(out, "US")
-        print("Also wrote output/stage2_watchlist_US.txt (ready to import into TradingView)")
+    write_tv_watchlist(out, MARKET)
+    print(f"Also wrote output/stage2_watchlist_{MARKET}.txt (confirmed signals only)")
 
     print(f"\nDone. Checked {total}.")
     print(f"  Skipped (below market cap floor): {skipped_market_cap}")
     print(f"  Skipped (no data/delisted): {skipped_no_data}")
-    print(f"{len(out)} stocks matched your current toggle settings. Saved to {OUTPUT_CSV}")
+    if not out.empty:
+        counts = out["signal"].value_counts().to_dict()
+        print(f"\n  BOTH (confirmed + still true live): {counts.get('BOTH', 0)}")
+        print(f"  CONFIRMED only: {counts.get('CONFIRMED', 0)}")
+        print(f"  PROVISIONAL only (partial week - can still reverse): {counts.get('PROVISIONAL', 0)}")
+        statuses = out["bar_status"].value_counts().to_dict()
+        print(f"\n  Newest bar status seen: {statuses}")
+    print(f"\n{len(out)} stocks matched. Saved to {OUTPUT_CSV}")
     if not out.empty:
         print(out.to_string(index=False))
 
