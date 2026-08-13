@@ -26,6 +26,7 @@ caps early rather than downloading years of data for stocks you don't want anywa
 """
 
 import os
+import json
 import time
 import io
 from datetime import datetime, timedelta
@@ -237,12 +238,17 @@ def get_universe_symbols(cfg):
 
 
 def fetch_weekly(ticker):
-    """Fetch weekly Close/Volume history for ONE ticker at a time, with retries."""
+    """Fetch weekly OHLCV history for ONE ticker at a time, with retries.
+
+    Keeps Open/High/Low alongside Close/Volume (not just Close/Volume as before) so the
+    same fetch can also feed the dashboard's hover-chart candles - no extra API calls
+    needed, since every candidate ticker already goes through this function once."""
     for _ in range(RETRIES_PER_TICKER):
         try:
             df = yf.Ticker(ticker).history(period=HISTORY_PERIOD, interval="1wk", auto_adjust=True)
             if df is not None and not df.empty and "Close" in df.columns:
-                return df[["Close", "Volume"]].dropna()
+                cols = [c for c in ["Open", "High", "Low", "Close", "Volume"] if c in df.columns]
+                return df[cols].dropna(subset=["Close", "Volume"])
         except Exception:
             pass
         time.sleep(2)
@@ -387,6 +393,123 @@ def write_tv_watchlist(out_df, market):
         f.write(",".join(tv_symbols))
 
 
+# ---------------- HOVER-CHART PRICE HISTORY (weekly OHLC, per-market shards) ----------------
+# Powers the dashboard's hover-preview chart, same idea as RSind's rs_ranking.py:
+# a compact per-letter JSON so the browser only ever downloads the shard for the ticker
+# being hovered, instead of one huge file. Adapted here for WEEKLY bars (this screener
+# works in weekly bars throughout, not daily), and split into output/history_IN/ and
+# output/history_US/ so a scan for one market never touches the other market's shards.
+HISTORY_MIN_BARS = 35   # need a bit more than the 30-week MA length to be worth charting
+HISTORY_DIR = f"output/history_{MARKET}"
+
+
+def _round_price(v):
+    """Precision scaled to price size - keeps candle bodies visible while shrinking files."""
+    if v >= 1000:
+        return round(v)
+    if v >= 100:
+        return round(v, 1)
+    return round(v, 2)
+
+
+def _shard_of(ticker):
+    """First letter of the ticker (as written in the results CSV, e.g. 'RELIANCE.NS' or
+    'AAPL'). Tickers starting with a digit/symbol go to '_'."""
+    c = ticker[0].upper()
+    return c if "A" <= c <= "Z" else "_"
+
+
+def _series_from(df, pos, n):
+    """Lay a ticker's weekly OHLC onto the benchmark's weekly calendar (`pos`: date -> index).
+    Returns (start_index, o, h, l, c) or None if there's nothing usable."""
+    o = [None] * n
+    h = [None] * n
+    l = [None] * n
+    c = [None] * n
+    has_ohl = "Open" in df.columns and "High" in df.columns and "Low" in df.columns
+    for ts, row in df.iterrows():
+        i = pos.get(pd.Timestamp(ts).date())
+        if i is None or pd.isna(row.get("Close")):
+            continue
+        close = _round_price(float(row["Close"]))
+        c[i] = close
+        o[i] = _round_price(float(row["Open"])) if has_ohl and pd.notna(row.get("Open")) else close
+        h[i] = _round_price(float(row["High"])) if has_ohl and pd.notna(row.get("High")) else close
+        l[i] = _round_price(float(row["Low"])) if has_ohl and pd.notna(row.get("Low")) else close
+
+    first = None
+    for i in range(n):
+        if c[i] is not None:
+            first = i
+            break
+    if first is None:
+        return None
+    return first, o[first:], h[first:], l[first:], c[first:]
+
+
+def build_history(price_history, bench_close):
+    """price_history: {ticker -> weekly OHLCV DataFrame}. bench_close: the benchmark's
+    weekly Close series (same one used for the Mansfield RS calc). Returns
+    (shards_by_letter, tickers_written, weeks_in_calendar)."""
+    ref_dates = [pd.Timestamp(ts).date() for ts in bench_close.index]
+    pos = {d: i for i, d in enumerate(ref_dates)}
+    n = len(ref_dates)
+    ref_epoch = [int(datetime(d.year, d.month, d.day, tzinfo=ZoneInfo("UTC")).timestamp()) for d in ref_dates]
+
+    ref_closes = [None] * n
+    for ts, val in bench_close.items():
+        i = pos.get(pd.Timestamp(ts).date())
+        if i is not None and pd.notna(val):
+            ref_closes[i] = _round_price(float(val))
+    ref_first = next((i for i, v in enumerate(ref_closes) if v is not None), None)
+    ref_block = {"s": ref_first, "c": ref_closes[ref_first:]} if ref_first is not None else None
+
+    shards = {}
+    total = 0
+    for ticker, df in price_history.items():
+        if df is None or df.empty:
+            continue
+        built = _series_from(df, pos, n)
+        if built is None or len(built[4]) < HISTORY_MIN_BARS:
+            continue
+        first, o, h, l, c = built
+        shards.setdefault(_shard_of(ticker), {})[ticker] = {"s": first, "o": o, "h": h, "l": l, "c": c}
+        total += 1
+
+    files = {
+        key: {"dates": ref_epoch, "refc": ref_block, "series": series}
+        for key, series in shards.items()
+    }
+    return files, total, n
+
+
+def write_history(price_history, bench_close):
+    try:
+        files, total, n = build_history(price_history, bench_close)
+    except Exception as e:
+        print(f"Warning: could not build price history for the hover chart ({e}).")
+        return
+
+    os.makedirs(HISTORY_DIR, exist_ok=True)
+
+    # Clear shards from a previous run whose tickers are all gone (e.g. dropped below
+    # the market-cap floor), so nothing stale is served to the dashboard.
+    for name in os.listdir(HISTORY_DIR):
+        if name.endswith(".json") and name[:-5] not in files:
+            os.remove(os.path.join(HISTORY_DIR, name))
+
+    written = 0
+    for key, payload in files.items():
+        path = os.path.join(HISTORY_DIR, f"{key}.json")
+        with open(path, "w") as f:
+            json.dump(payload, f, separators=(",", ":"))
+        written += os.path.getsize(path)
+
+    print(f"Wrote {HISTORY_DIR}/: {total} tickers x up to {n} weeks across {len(files)} shards "
+          f"({written / 1e6:.1f} MB total).")
+# ----------------------------------------------------------------------------------
+
+
 def main():
     cfg = MARKET_CONFIG[MARKET]
     print(f"Market: {MARKET}")
@@ -414,6 +537,7 @@ def main():
     tickers = [f"{s}{cfg['suffix']}" for s in symbols]
     total = len(tickers)
     results = []
+    price_history = {}   # ticker -> weekly OHLCV DataFrame, for the hover-chart shards
     skipped_no_data = 0
     skipped_market_cap = 0
 
@@ -436,6 +560,10 @@ def main():
             skipped_no_data += 1
             time.sleep(PAUSE_BETWEEN_REQUESTS)
             continue
+
+        # Keep the weekly OHLCV for the hover-chart shards - this is free, since the
+        # fetch above already happened regardless of whether this ticker ends up matching.
+        price_history[ticker] = stock_df
 
         last_week, bar_status = classify_last_bar(stock_df)
 
@@ -505,6 +633,8 @@ def main():
 
     write_tv_watchlist(out, MARKET)
     print(f"Also wrote output/stage2_watchlist_{MARKET}.txt (confirmed signals only)")
+
+    write_history(price_history, bench_close)
 
     print(f"\nDone. Checked {total}.")
     print(f"  Skipped (below market cap floor): {skipped_market_cap}")
