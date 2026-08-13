@@ -1,0 +1,63 @@
+{
+  "params": {
+    "years": 9.0,
+    "min_mcap_cr": 2000.0,
+    "cost_pct": 0.3,
+    "capital": 10000.0,
+    "hold_weeks": 52,
+    "limit": 0,
+    "tag": "v1"
+  },
+  "results": {
+    "Loose": {
+      "trades": 3119,
+      "too_recent_to_score": 632,
+      "dropped_missing_future": 1,
+      "hit_rate_50pct_fixed_1yr": 21.0,
+      "avg_ret_fixed_1yr": 19.6,
+      "median_ret_fixed_1yr": 6.6,
+      "best_fixed_1yr": 726.4,
+      "worst_fixed_1yr": -97.1,
+      "distribution": {
+        "<-25%": 571,
+        "-25% to 0%": 801,
+        "0-25%": 669,
+        "25-50%": 426,
+        "50-100%": 405,
+        ">100%": 247
+      },
+      "ma_exit_hit_rate_50pct": 9.7,
+      "ma_exit_avg_ret": 9.4,
+      "ma_exit_median_weeks_held": 14,
+      "ma_exit_pct_stopped_early": 92.6,
+      "among_1yr_winners_ma_capture_avg": 58.0,
+      "among_1yr_winners_pct_exited_early": 68.2
+    },
+    "Strict": {
+      "trades": 2571,
+      "too_recent_to_score": 535,
+      "dropped_missing_future": 1,
+      "hit_rate_50pct_fixed_1yr": 21.6,
+      "avg_ret_fixed_1yr": 19.6,
+      "median_ret_fixed_1yr": 7.1,
+      "best_fixed_1yr": 689.2,
+      "worst_fixed_1yr": -97.1,
+      "distribution": {
+        "<-25%": 475,
+        "-25% to 0%": 666,
+        "0-25%": 531,
+        "25-50%": 346,
+        "50-100%": 340,
+        ">100%": 213
+      },
+      "ma_exit_hit_rate_50pct": 10.8,
+      "ma_exit_avg_ret": 10.6,
+      "ma_exit_median_weeks_held": 16,
+      "ma_exit_pct_stopped_early": 91.9,
+      "among_1yr_winners_ma_capture_avg": 61.8,
+      "among_1yr_winners_pct_exited_early": 66.5
+    }
+  },
+  "benchmark_1yr_hit_rate": 5.7,
+  "benchmark_1yr_avg_return": 12.4
+}
