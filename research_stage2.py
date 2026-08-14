@@ -77,6 +77,15 @@ def build_feature_table(sig, o, c, h, l, v, ma30, mrs, mcap_hist, bench_close,
 
     breadth = sig.sum(axis=1).values          # signals firing that same week
 
+    # Index of each ticker's first bar with real price data - the basis for listing
+    # age. A ticker whose first bar is index 0 was already listed when the download
+    # window opened, so its true age is unknown (censored), not "zero weeks old".
+    first_bar = {}
+    for tk in c.columns:
+        nz = np.flatnonzero(np.isfinite(c[tk].values))
+        if len(nz):
+            first_bar[tk] = int(nz[0])
+
     rows = []
     for tk in sig.columns:
         idxs = np.flatnonzero(sig[tk].values)
@@ -124,6 +133,35 @@ def build_feature_table(sig, o, c, h, l, v, ma30, mrs, mcap_hist, bench_close,
                     brk_week = k - entry_i
                     break
 
+            # --- candle character of the SIGNAL week ------------------------------
+            # This is the bar a trader actually stares at before deciding: the week
+            # the signal fired. (Entry is the NEXT week's open, so this bar is fully
+            # closed and visible at decision time - no lookahead.)
+            o_s, h_s, l_s, c_s = O[s], H[s], L[s], C[s]
+            rng_s = h_s - l_s if np.isfinite(h_s) and np.isfinite(l_s) else np.nan
+            prior_h, prior_l = H[max(0, s - 20):s], L[max(0, s - 20):s]
+            avg_rng = np.nanmean(prior_h - prior_l) if len(prior_h) else np.nan
+            prev_c = C[s - 1] if s >= 1 else np.nan
+
+            bullish = bool(c_s > o_s) if np.isfinite(o_s) and np.isfinite(c_s) else None
+            body_pct = ((c_s / o_s - 1) * 100) if np.isfinite(o_s) and o_s > 0 and np.isfinite(c_s) else np.nan
+            range_pct = ((rng_s / l_s) * 100) if np.isfinite(rng_s) and np.isfinite(l_s) and l_s > 0 else np.nan
+            # >1 means this week's range was wider than the recent norm (range expansion)
+            range_exp = (rng_s / avg_rng) if np.isfinite(rng_s) and np.isfinite(avg_rng) and avg_rng > 0 else np.nan
+            # 1.0 = closed right at the high of the week, 0.0 = right at the low
+            close_pos = ((c_s - l_s) / rng_s) if np.isfinite(rng_s) and rng_s > 0 else np.nan
+            body_share = (abs(c_s - o_s) / rng_s) if np.isfinite(rng_s) and rng_s > 0 and np.isfinite(o_s) else np.nan
+            gap_pct = ((o_s / prev_c - 1) * 100) if np.isfinite(prev_c) and prev_c > 0 and np.isfinite(o_s) else np.nan
+
+            # --- listing age (recent-IPO detection) -------------------------------
+            # Weeks of price history available before this signal. If the ticker's
+            # data starts at the very first bar of the downloaded panel, its true
+            # listing date is older than the window and unknowable here - flagged
+            # censored rather than reported as a spuriously precise age.
+            first_i = first_bar.get(tk)
+            censored = (first_i == 0)
+            weeks_listed = (s - first_i) if first_i is not None else np.nan
+
             ret = (exit_px / entry - 1) * 100 - cost_pct
             rows.append({
                 "ticker": tk,
@@ -150,6 +188,17 @@ def build_feature_table(sig, o, c, h, l, v, ma30, mrs, mcap_hist, bench_close,
                 "weeks_above_ma30": int(fresh),
                 "mcap_cr": round(float(MC[s] / CRORE), 0) if np.isfinite(MC[s]) else np.nan,
                 "price": round(float(C[s]), 2),
+                # signal-week candle character
+                "candle_bullish": bullish,
+                "candle_body_pct": round(float(body_pct), 2) if np.isfinite(body_pct) else np.nan,
+                "candle_range_pct": round(float(range_pct), 2) if np.isfinite(range_pct) else np.nan,
+                "range_expansion_x": round(float(range_exp), 2) if np.isfinite(range_exp) else np.nan,
+                "close_position": round(float(close_pos), 3) if np.isfinite(close_pos) else np.nan,
+                "body_share_of_range": round(float(body_share), 3) if np.isfinite(body_share) else np.nan,
+                "gap_pct": round(float(gap_pct), 2) if np.isfinite(gap_pct) else np.nan,
+                # listing age
+                "weeks_listed": int(weeks_listed) if np.isfinite(weeks_listed) else np.nan,
+                "listing_censored": bool(censored),
                 # behaviour after entry (NOT an entry filter - a management signal)
                 "ma_break_week": brk_week if brk_week is not None else -1,
             })
@@ -175,6 +224,14 @@ FEATURES = [
     ("weeks_above_ma30", "STOCK: weeks already above 30wk MA", [0, 2, 5, 12, 10000]),
     ("mcap_cr", "STOCK: market cap (Rs Cr)", [0, 5000, 15000, 50000, 1e9]),
     ("price", "STOCK: share price (Rs)", [0, 100, 300, 1000, 1e9]),
+    ("candle_bullish", "CANDLE: signal week closed up", "bool"),
+    ("candle_body_pct", "CANDLE: signal-week body (close vs open, %)", [-100, 0, 3, 8, 15, 1000]),
+    ("candle_range_pct", "CANDLE: signal-week high-low range (%)", [0, 6, 10, 16, 25, 1000]),
+    ("range_expansion_x", "CANDLE: range vs prior 20wk avg range", [0, 0.8, 1.2, 1.8, 2.5, 100]),
+    ("close_position", "CANDLE: close position in week's range (1=at high)", [0, 0.4, 0.65, 0.85, 1.001]),
+    ("body_share_of_range", "CANDLE: body as share of range", [0, 0.25, 0.45, 0.7, 1.001]),
+    ("gap_pct", "CANDLE: gap from prior week's close (%)", [-100, -1, 0.5, 3, 1000]),
+    ("weeks_listed", "STOCK: weeks of listed history at signal", [0, 52, 104, 260, 10000]),
 ]
 
 
