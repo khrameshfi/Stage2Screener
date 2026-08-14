@@ -1,154 +1,227 @@
 # What separated the Stage 2 winners? — attribution study (Indian market)
 
-Sample: **3,119** scoreable Stage 2 confirmations, 2017-08-21 → 2025-08-11. Baseline hit rate (reached ≥50% in 52 weeks): **20.9%**.
+Sample: **3,116** scoreable Stage 2 confirmations, 2017-08-21 → 2025-08-11. Baseline hit rate (reached ≥50% in 52 weeks): **21.1%**.
 
 Every feature is measured **at the signal week** — nothing here uses information that only existed later. Buckets with fewer than 40 trades are suppressed as noise.
 
 ## Feature attribution, ranked by how much the hit rate varies across buckets
 
-### INDEX: % off its own 52wk high  *(spread: 38.4 pts)*
+### INDEX: % off its own 52wk high  *(spread: 35.5 pts)*
 
 | Bucket | Trades | Hit rate | Median return | vs baseline |
 |---|---:|---:|---:|---:|
-| (-100.0, -15.0] | 40 | 57.5% | +61.0% | +36.6 pts |
-| (-15.0, -8.0] | 327 | 23.2% | +14.3% | +2.3 pts |
-| (-8.0, -3.0] | 1,062 | 21.8% | +5.9% | +0.8 pts |
-| (-3.0, 0.01] | 1,690 | 19.1% | +3.5% | -1.9 pts |
+| (-100.0, -15.0] | 40 | 55.0% | +60.0% | +33.9 pts |
+| (-15.0, -8.0] | 327 | 23.2% | +14.7% | +2.2 pts |
+| (-8.0, -3.0] | 1,064 | 21.6% | +5.4% | +0.5 pts |
+| (-3.0, 0.01] | 1,685 | 19.5% | +3.6% | -1.6 pts |
 
-### INDEX: 1-year return (extension)  *(spread: 24.0 pts)*
-
-| Bucket | Trades | Hit rate | Median return | vs baseline |
-|---|---:|---:|---:|---:|
-| (-100, 0] | 206 | 36.9% | +31.6% | +16.0 pts |
-| (0, 10] | 1,024 | 27.5% | +16.1% | +6.6 pts |
-| (10, 20] | 909 | 18.5% | +5.4% | -2.4 pts |
-| (20, 1000] | 980 | 12.9% | -6.0% | -8.0 pts |
-
-### INDEX: weeks already above 40wk MA  *(spread: 20.5 pts)*
+### INDEX: 1-year return (extension)  *(spread: 23.6 pts)*
 
 | Bucket | Trades | Hit rate | Median return | vs baseline |
 |---|---:|---:|---:|---:|
-| (-1, 0] | 401 | 21.9% | +14.0% | +1.0 pts |
-| (0, 13] | 940 | 24.8% | +11.8% | +3.9 pts |
-| (13, 39] | 882 | 28.7% | +20.1% | +7.8 pts |
-| (39, 78] | 832 | 8.2% | -10.3% | -12.7 pts |
-| (78, 10000] | 64 | 15.6% | -5.2% | -5.3 pts |
+| (-100, 0] | 205 | 36.6% | +31.3% | +15.5 pts |
+| (0, 10] | 1,028 | 27.8% | +16.1% | +6.7 pts |
+| (10, 20] | 903 | 18.7% | +5.7% | -2.4 pts |
+| (20, 1000] | 980 | 13.0% | -6.1% | -8.1 pts |
 
-### STOCK: % off its 52wk high  *(spread: 17.1 pts)*
-
-| Bucket | Trades | Hit rate | Median return | vs baseline |
-|---|---:|---:|---:|---:|
-| (-100.0, -25.0] | 157 | 34.4% | +12.6% | +13.5 pts |
-| (-25.0, -12.0] | 954 | 23.2% | +7.7% | +2.3 pts |
-| (-12.0, -5.0] | 953 | 20.5% | +9.0% | -0.4 pts |
-| (-5.0, 0.01] | 1,055 | 17.3% | +2.9% | -3.7 pts |
-
-### STOCK: share price (Rs)  *(spread: 17.1 pts)*
+### INDEX: weeks already above 40wk MA  *(spread: 21.4 pts)*
 
 | Bucket | Trades | Hit rate | Median return | vs baseline |
 |---|---:|---:|---:|---:|
-| (0.0, 100.0] | 449 | 30.3% | +8.6% | +9.4 pts |
-| (100.0, 300.0] | 818 | 24.0% | +6.8% | +3.1 pts |
-| (300.0, 1000.0] | 1,148 | 19.8% | +8.0% | -1.1 pts |
-| (1000.0, 1000000000.0] | 704 | 13.2% | +2.6% | -7.7 pts |
+| (-1, 0] | 402 | 21.6% | +14.1% | +0.6 pts |
+| (0, 13] | 935 | 25.1% | +11.7% | +4.0 pts |
+| (13, 39] | 883 | 29.3% | +20.2% | +8.2 pts |
+| (39, 78] | 832 | 7.9% | -10.6% | -13.2 pts |
+| (78, 10000] | 64 | 15.6% | -5.2% | -5.5 pts |
 
-### STOCK: prior 1-year return  *(spread: 16.1 pts)*
-
-| Bucket | Trades | Hit rate | Median return | vs baseline |
-|---|---:|---:|---:|---:|
-| (-100, 0] | 883 | 28.5% | +16.0% | +7.6 pts |
-| (0, 25] | 948 | 21.3% | +11.2% | +0.4 pts |
-| (25, 60] | 751 | 15.7% | -0.9% | -5.2 pts |
-| (60, 10000] | 412 | 12.4% | -8.5% | -8.5 pts |
-
-### STOCK: market cap (Rs Cr)  *(spread: 16.0 pts)*
+### STOCK: weeks of listed history at signal  *(spread: 17.9 pts)*
 
 | Bucket | Trades | Hit rate | Median return | vs baseline |
 |---|---:|---:|---:|---:|
-| (0.0, 5000.0] | 1,086 | 25.8% | +2.6% | +4.9 pts |
-| (5000.0, 15000.0] | 896 | 22.2% | +7.3% | +1.3 pts |
-| (15000.0, 50000.0] | 678 | 18.9% | +9.2% | -2.0 pts |
-| (50000.0, 1000000000.0] | 459 | 9.8% | +8.3% | -11.1 pts |
+| (0, 52] | 133 | 23.3% | +1.0% | +2.2 pts |
+| (52, 104] | 122 | 30.3% | +17.8% | +9.2 pts |
+| (104, 260] | 962 | 12.4% | -5.2% | -8.7 pts |
+| (260, 10000] | 1,899 | 24.7% | +12.8% | +3.7 pts |
 
-### STOCK: 30wk MA slope over 4wk  *(spread: 13.5 pts)*
-
-| Bucket | Trades | Hit rate | Median return | vs baseline |
-|---|---:|---:|---:|---:|
-| (-100.0, 0.0] | 1,149 | 23.8% | +10.1% | +2.9 pts |
-| (0.0, 1.5] | 912 | 19.2% | +4.7% | -1.7 pts |
-| (1.5, 4.0] | 830 | 16.3% | +1.7% | -4.6 pts |
-| (4.0, 10000.0] | 228 | 29.8% | +17.7% | +8.9 pts |
-
-### STOCK: % above its 30wk MA  *(spread: 13.3 pts)*
+### STOCK: share price (Rs)  *(spread: 17.5 pts)*
 
 | Bucket | Trades | Hit rate | Median return | vs baseline |
 |---|---:|---:|---:|---:|
-| (-100, 5] | 768 | 16.5% | +5.2% | -4.4 pts |
-| (5, 12] | 945 | 17.9% | +6.5% | -3.0 pts |
-| (12, 22] | 908 | 23.2% | +7.3% | +2.3 pts |
-| (22, 40] | 409 | 29.8% | +12.9% | +8.9 pts |
-| (40, 10000] | 89 | 25.8% | +1.8% | +4.9 pts |
+| (0.0, 100.0] | 445 | 30.6% | +7.3% | +9.5 pts |
+| (100.0, 300.0] | 819 | 24.3% | +6.8% | +3.2 pts |
+| (300.0, 1000.0] | 1,149 | 20.0% | +7.9% | -1.1 pts |
+| (1000.0, 1000000000.0] | 703 | 13.1% | +2.5% | -8.0 pts |
 
-### INDEX: 3-month return  *(spread: 9.5 pts)*
-
-| Bucket | Trades | Hit rate | Median return | vs baseline |
-|---|---:|---:|---:|---:|
-| (-100, 0] | 627 | 18.7% | +6.2% | -2.2 pts |
-| (0, 5] | 859 | 19.1% | +4.7% | -1.8 pts |
-| (5, 10] | 912 | 18.5% | +0.1% | -2.4 pts |
-| (10, 1000] | 721 | 28.0% | +15.7% | +7.1 pts |
-
-### STOCK: volume vs 20wk avg  *(spread: 9.4 pts)*
+### STOCK: market cap (Rs Cr)  *(spread: 16.9 pts)*
 
 | Bucket | Trades | Hit rate | Median return | vs baseline |
 |---|---:|---:|---:|---:|
-| (0.0, 1.0] | 890 | 19.3% | +6.8% | -1.6 pts |
-| (1.0, 1.5] | 669 | 15.7% | +7.6% | -5.2 pts |
-| (1.5, 2.5] | 724 | 25.1% | +11.0% | +4.2 pts |
-| (2.5, 1000.0] | 836 | 23.1% | +0.8% | +2.2 pts |
+| (0.0, 5000.0] | 1,088 | 26.4% | +2.8% | +5.3 pts |
+| (5000.0, 15000.0] | 892 | 22.0% | +7.3% | +0.9 pts |
+| (15000.0, 50000.0] | 682 | 19.2% | +9.3% | -1.9 pts |
+| (50000.0, 1000000000.0] | 454 | 9.5% | +8.0% | -11.6 pts |
 
-### CROWDING: signals firing same week  *(spread: 6.3 pts)*
+### STOCK: % off its 52wk high  *(spread: 16.8 pts)*
 
 | Bucket | Trades | Hit rate | Median return | vs baseline |
 |---|---:|---:|---:|---:|
-| (10, 15] | 52 | 26.9% | +17.3% | +6.0 pts |
-| (15, 20] | 136 | 22.1% | +9.4% | +1.2 pts |
-| (20, 1000] | 2,904 | 20.6% | +5.8% | -0.3 pts |
+| (-100.0, -25.0] | 153 | 34.6% | +14.0% | +13.6 pts |
+| (-25.0, -12.0] | 958 | 23.0% | +7.8% | +1.9 pts |
+| (-12.0, -5.0] | 949 | 20.7% | +8.6% | -0.4 pts |
+| (-5.0, 0.01] | 1,056 | 17.8% | +2.9% | -3.3 pts |
+
+### STOCK: prior 1-year return  *(spread: 16.4 pts)*
+
+| Bucket | Trades | Hit rate | Median return | vs baseline |
+|---|---:|---:|---:|---:|
+| (-100, 0] | 879 | 28.7% | +16.1% | +7.6 pts |
+| (0, 25] | 945 | 21.9% | +11.2% | +0.8 pts |
+| (25, 60] | 751 | 15.6% | -0.9% | -5.5 pts |
+| (60, 10000] | 415 | 12.3% | -8.9% | -8.8 pts |
+
+### STOCK: 30wk MA slope over 4wk  *(spread: 14.8 pts)*
+
+| Bucket | Trades | Hit rate | Median return | vs baseline |
+|---|---:|---:|---:|---:|
+| (-100.0, 0.0] | 1,149 | 23.9% | +10.2% | +2.8 pts |
+| (0.0, 1.5] | 906 | 19.4% | +4.7% | -1.7 pts |
+| (1.5, 4.0] | 829 | 16.2% | +1.6% | -4.9 pts |
+| (4.0, 10000.0] | 232 | 31.0% | +17.7% | +9.9 pts |
+
+### STOCK: % above its 30wk MA  *(spread: 14.5 pts)*
+
+| Bucket | Trades | Hit rate | Median return | vs baseline |
+|---|---:|---:|---:|---:|
+| (-100, 5] | 771 | 16.3% | +5.0% | -4.7 pts |
+| (5, 12] | 938 | 17.9% | +6.6% | -3.2 pts |
+| (12, 22] | 903 | 23.6% | +8.4% | +2.5 pts |
+| (22, 40] | 416 | 30.8% | +10.0% | +9.7 pts |
+| (40, 10000] | 88 | 25.0% | -1.5% | +3.9 pts |
+
+### CANDLE: gap from prior week's close (%)  *(spread: 12.3 pts)*
+
+| Bucket | Trades | Hit rate | Median return | vs baseline |
+|---|---:|---:|---:|---:|
+| (-100.0, -1.0] | 190 | 16.3% | +3.2% | -4.8 pts |
+| (-1.0, 0.5] | 1,629 | 19.6% | +5.9% | -1.5 pts |
+| (0.5, 3.0] | 1,143 | 23.0% | +6.9% | +1.9 pts |
+| (3.0, 1000.0] | 154 | 28.6% | +14.0% | +7.5 pts |
+
+### INDEX: 3-month return  *(spread: 9.7 pts)*
+
+| Bucket | Trades | Hit rate | Median return | vs baseline |
+|---|---:|---:|---:|---:|
+| (-100, 0] | 629 | 18.4% | +5.9% | -2.6 pts |
+| (0, 5] | 861 | 19.5% | +4.8% | -1.6 pts |
+| (5, 10] | 901 | 18.8% | +0.4% | -2.3 pts |
+| (10, 1000] | 725 | 28.1% | +14.9% | +7.1 pts |
+
+### STOCK: volume vs 20wk avg  *(spread: 9.5 pts)*
+
+| Bucket | Trades | Hit rate | Median return | vs baseline |
+|---|---:|---:|---:|---:|
+| (0.0, 1.0] | 891 | 19.5% | +7.3% | -1.6 pts |
+| (1.0, 1.5] | 667 | 15.6% | +7.1% | -5.5 pts |
+| (1.5, 2.5] | 720 | 25.1% | +11.2% | +4.1 pts |
+| (2.5, 1000.0] | 838 | 23.6% | +0.8% | +2.5 pts |
+
+### CANDLE: range vs prior 20wk avg range  *(spread: 7.9 pts)*
+
+| Bucket | Trades | Hit rate | Median return | vs baseline |
+|---|---:|---:|---:|---:|
+| (0.0, 0.8] | 391 | 18.4% | +6.2% | -2.7 pts |
+| (0.8, 1.2] | 744 | 20.4% | +9.1% | -0.7 pts |
+| (1.2, 1.8] | 920 | 20.9% | +6.2% | -0.2 pts |
+| (1.8, 2.5] | 571 | 26.3% | +10.8% | +5.2 pts |
+| (2.5, 100.0] | 489 | 18.6% | -3.6% | -2.5 pts |
+
+### CANDLE: signal-week high-low range (%)  *(spread: 7.6 pts)*
+
+| Bucket | Trades | Hit rate | Median return | vs baseline |
+|---|---:|---:|---:|---:|
+| (0, 6] | 480 | 16.9% | +11.7% | -4.2 pts |
+| (6, 10] | 866 | 20.8% | +7.9% | -0.3 pts |
+| (10, 16] | 947 | 22.8% | +6.3% | +1.7 pts |
+| (16, 25] | 549 | 24.4% | +5.0% | +3.3 pts |
+| (25, 1000] | 273 | 16.8% | -8.9% | -4.2 pts |
+
+### CANDLE: close position in week's range (1=at high)  *(spread: 6.2 pts)*
+
+| Bucket | Trades | Hit rate | Median return | vs baseline |
+|---|---:|---:|---:|---:|
+| (0.0, 0.4] | 237 | 21.5% | +7.4% | +0.4 pts |
+| (0.4, 0.65] | 675 | 23.9% | +12.0% | +2.8 pts |
+| (0.65, 0.85] | 1,188 | 22.3% | +5.7% | +1.2 pts |
+| (0.85, 1.001] | 1,015 | 17.7% | +3.5% | -3.4 pts |
 
 ### STOCK: weeks already above 30wk MA  *(spread: 4.8 pts)*
 
 | Bucket | Trades | Hit rate | Median return | vs baseline |
 |---|---:|---:|---:|---:|
-| (0, 2] | 1,415 | 18.6% | +3.6% | -2.3 pts |
-| (2, 5] | 626 | 22.7% | +4.6% | +1.8 pts |
-| (5, 12] | 525 | 23.4% | +10.1% | +2.5 pts |
-| (12, 10000] | 553 | 22.4% | +12.0% | +1.5 pts |
+| (0, 2] | 1,410 | 18.7% | +3.7% | -2.4 pts |
+| (2, 5] | 630 | 23.0% | +4.6% | +1.9 pts |
+| (5, 12] | 524 | 23.5% | +9.2% | +2.4 pts |
+| (12, 10000] | 552 | 22.8% | +12.0% | +1.7 pts |
 
-### STOCK: Mansfield RS value  *(spread: 4.4 pts)*
-
-| Bucket | Trades | Hit rate | Median return | vs baseline |
-|---|---:|---:|---:|---:|
-| (-100.0, 0.1] | 606 | 19.0% | +9.7% | -1.9 pts |
-| (0.1, 0.3] | 894 | 19.6% | +6.3% | -1.3 pts |
-| (0.3, 0.7] | 832 | 21.8% | +6.0% | +0.9 pts |
-| (0.7, 1.5] | 529 | 23.4% | +4.6% | +2.5 pts |
-| (1.5, 1000.0] | 258 | 22.1% | -0.2% | +1.2 pts |
-
-### STOCK: % above its 52wk low  *(spread: 4.4 pts)*
+### CANDLE: body as share of range  *(spread: 4.7 pts)*
 
 | Bucket | Trades | Hit rate | Median return | vs baseline |
 |---|---:|---:|---:|---:|
-| (0, 25] | 496 | 21.6% | +15.7% | +0.7 pts |
-| (25, 50] | 1,440 | 19.3% | +5.3% | -1.6 pts |
-| (50, 90] | 791 | 22.0% | +0.2% | +1.1 pts |
-| (90, 10000] | 392 | 23.7% | +7.1% | +2.8 pts |
+| (0.0, 0.25] | 358 | 19.8% | +11.2% | -1.3 pts |
+| (0.25, 0.45] | 525 | 23.6% | +9.9% | +2.5 pts |
+| (0.45, 0.7] | 1,151 | 22.4% | +6.9% | +1.3 pts |
+| (0.7, 1.001] | 1,082 | 18.9% | +1.8% | -2.2 pts |
 
-### INDEX: above 40-week MA at signal  *(spread: 1.1 pts)*
+### STOCK: Mansfield RS value  *(spread: 4.6 pts)*
 
 | Bucket | Trades | Hit rate | Median return | vs baseline |
 |---|---:|---:|---:|---:|
-| False | 401 | 21.9% | +14.0% | +1.0 pts |
-| True | 2,718 | 20.8% | +4.8% | -0.2 pts |
+| (-100.0, 0.1] | 604 | 19.0% | +10.2% | -2.0 pts |
+| (0.1, 0.3] | 891 | 19.6% | +6.5% | -1.4 pts |
+| (0.3, 0.7] | 833 | 21.8% | +6.7% | +0.8 pts |
+| (0.7, 1.5] | 521 | 23.4% | +4.6% | +2.3 pts |
+| (1.5, 1000.0] | 267 | 23.6% | -1.8% | +2.5 pts |
+
+### STOCK: % above its 52wk low  *(spread: 4.5 pts)*
+
+| Bucket | Trades | Hit rate | Median return | vs baseline |
+|---|---:|---:|---:|---:|
+| (0, 25] | 496 | 21.6% | +15.8% | +0.5 pts |
+| (25, 50] | 1,436 | 19.6% | +5.6% | -1.4 pts |
+| (50, 90] | 789 | 21.9% | +0.1% | +0.8 pts |
+| (90, 10000] | 395 | 24.1% | +6.5% | +3.0 pts |
+
+### CANDLE: signal-week body (close vs open, %)  *(spread: 3.4 pts)*
+
+| Bucket | Trades | Hit rate | Median return | vs baseline |
+|---|---:|---:|---:|---:|
+| (-100, 0] | 189 | 19.0% | +5.4% | -2.0 pts |
+| (0, 3] | 565 | 20.0% | +11.5% | -1.1 pts |
+| (3, 8] | 1,170 | 22.2% | +8.5% | +1.1 pts |
+| (8, 15] | 775 | 21.9% | +5.3% | +0.9 pts |
+| (15, 1000] | 416 | 18.8% | -6.2% | -2.3 pts |
+
+### CROWDING: signals firing same week  *(spread: 2.5 pts)*
+
+| Bucket | Trades | Hit rate | Median return | vs baseline |
+|---|---:|---:|---:|---:|
+| (10, 15] | 56 | 23.2% | +15.7% | +2.1 pts |
+| (15, 20] | 133 | 23.3% | +12.0% | +2.2 pts |
+| (20, 1000] | 2,900 | 20.8% | +5.8% | -0.3 pts |
+
+### CANDLE: signal week closed up  *(spread: 2.2 pts)*
+
+| Bucket | Trades | Hit rate | Median return | vs baseline |
+|---|---:|---:|---:|---:|
+| False | 189 | 19.0% | +5.4% | -2.0 pts |
+| True | 2,927 | 21.2% | +6.7% | +0.1 pts |
+
+### INDEX: above 40-week MA at signal  *(spread: 0.6 pts)*
+
+| Bucket | Trades | Hit rate | Median return | vs baseline |
+|---|---:|---:|---:|---:|
+| False | 402 | 21.6% | +14.1% | +0.6 pts |
+| True | 2,714 | 21.0% | +4.8% | -0.1 pts |
 
 ## Confound check — which features survive controlling for the year?
 
@@ -156,20 +229,20 @@ Regime dominates this strategy, so any feature that happens to correlate with ca
 
 | Feature | Mean within-year edge | Years positive | Verdict |
 |---|---:|---:|---|
-| idx_52wk_ret | +7.6 pts | 8/9 | **survives** |
-| price | +7.4 pts | 7/9 | **survives** |
-| mcap_cr | +6.5 pts | 7/9 | **survives** |
-| idx_weeks_above_40wma | +6.3 pts | 7/9 | **survives** |
-| vol_surge_x | +3.9 pts | 6/9 | confounded / inconsistent |
+| idx_52wk_ret | +7.9 pts | 8/9 | **survives** |
+| price | +7.1 pts | 7/9 | **survives** |
+| mcap_cr | +6.6 pts | 7/9 | **survives** |
+| idx_weeks_above_40wma | +6.5 pts | 7/9 | **survives** |
+| vol_surge_x | +4.2 pts | 6/9 | confounded / inconsistent |
 | breadth | +3.7 pts | 7/9 | **survives** |
-| idx_13wk_ret | +2.7 pts | 4/9 | confounded / inconsistent |
-| mrs | +1.8 pts | 5/9 | confounded / inconsistent |
-| ma30_slope_pct | -0.7 pts | 3/9 | confounded / inconsistent |
-| weeks_above_ma30 | -1.7 pts | 3/9 | confounded / inconsistent |
-| idx_off_52wk_high | -2.8 pts | 3/9 | confounded / inconsistent |
-| pct_off_52wk_high | -3.6 pts | 2/9 | confounded / inconsistent |
-| prior_52wk_ret | -3.6 pts | 4/9 | confounded / inconsistent |
-| pct_above_ma30 | -4.2 pts | 3/9 | confounded / inconsistent |
+| idx_13wk_ret | +2.9 pts | 3/9 | confounded / inconsistent |
+| mrs | +2.2 pts | 5/9 | confounded / inconsistent |
+| ma30_slope_pct | -0.6 pts | 3/9 | confounded / inconsistent |
+| weeks_above_ma30 | -1.8 pts | 3/9 | confounded / inconsistent |
+| idx_off_52wk_high | -2.7 pts | 4/9 | confounded / inconsistent |
+| pct_off_52wk_high | -3.0 pts | 2/9 | confounded / inconsistent |
+| prior_52wk_ret | -3.6 pts | 3/9 | confounded / inconsistent |
+| pct_above_ma30 | -4.8 pts | 3/9 | confounded / inconsistent |
 
 Only features marked *survives* belong in the entry checklist. A feature that flips sign year to year is riding the regime, not predicting it.
 
@@ -179,11 +252,11 @@ Each row adds one condition on top of the ones above it.
 
 | Filter applied | Signals left | Hit rate | Median return |
 |---|---:|---:|---:|
-| All Stage 2 confirmations | 3,119 | **20.9%** | +6.6% |
-| + index above its 40wk MA | 2,718 | **20.8%** | +4.8% |
-| + index within 8% of its 52wk high | 2,663 | **20.0%** | +4.0% |
-| + stock's 30wk MA rising | 1,860 | **19.4%** | +4.5% |
-| + not a crowded signal week | 41 | **4.9%** | +0.2% |
+| All Stage 2 confirmations | 3,116 | **21.1%** | +6.5% |
+| + index above its 40wk MA | 2,714 | **21.0%** | +4.8% |
+| + index within 8% of its 52wk high | 2,659 | **20.2%** | +4.0% |
+| + stock's 30wk MA rising | 1,856 | **19.6%** | +4.4% |
+| + not a crowded signal week | 45 | **8.9%** | +0.5% |
 
 Rules, stated precisely:
 
@@ -198,8 +271,8 @@ The stack above is derived from the whole window, so it is guaranteed to look go
 
 | Half | Window | All signals | Baseline hit | Filtered signals | Filtered hit |
 |---|---|---:|---:|---:|---:|
-| first half | 2017-08-21 to 2022-08-29 | 1,561 | 18.6% | 30 | **0.0%** |
-| second half | 2022-09-05 to 2025-08-11 | 1,558 | 23.2% | 11 | **18.2%** |
+| first half | 2017-08-21 to 2022-08-29 | 1,560 | 18.8% | 30 | **0.0%** |
+| second half | 2022-09-05 to 2025-08-11 | 1,556 | 23.4% | 15 | **26.7%** |
 
 ## Caveats that apply to every number above
 

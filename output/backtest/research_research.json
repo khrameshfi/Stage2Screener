@@ -9,8 +9,8 @@
     "limit": 0,
     "tag": "research"
   },
-  "baseline_hit": 20.9,
-  "n": 3119,
+  "baseline_hit": 21.08,
+  "n": 3116,
   "univariate": [
     {
       "feature": "idx_off_52wk_high",
@@ -19,33 +19,33 @@
         {
           "bucket": "(-100.0, -15.0]",
           "n": 40,
-          "hit": 57.5,
-          "median": 61.0,
-          "lift": 36.6
+          "hit": 55.0,
+          "median": 60.0,
+          "lift": 33.9
         },
         {
           "bucket": "(-15.0, -8.0]",
           "n": 327,
           "hit": 23.2,
-          "median": 14.3,
-          "lift": 2.3
+          "median": 14.7,
+          "lift": 2.2
         },
         {
           "bucket": "(-8.0, -3.0]",
-          "n": 1062,
-          "hit": 21.8,
-          "median": 5.9,
-          "lift": 0.8
+          "n": 1064,
+          "hit": 21.6,
+          "median": 5.4,
+          "lift": 0.5
         },
         {
           "bucket": "(-3.0, 0.01]",
-          "n": 1690,
-          "hit": 19.1,
-          "median": 3.5,
-          "lift": -1.9
+          "n": 1685,
+          "hit": 19.5,
+          "median": 3.6,
+          "lift": -1.6
         }
       ],
-      "spread": 38.4
+      "spread": 35.5
     },
     {
       "feature": "idx_52wk_ret",
@@ -53,34 +53,34 @@
       "buckets": [
         {
           "bucket": "(-100, 0]",
-          "n": 206,
-          "hit": 36.9,
-          "median": 31.6,
-          "lift": 16.0
+          "n": 205,
+          "hit": 36.6,
+          "median": 31.3,
+          "lift": 15.5
         },
         {
           "bucket": "(0, 10]",
-          "n": 1024,
-          "hit": 27.5,
+          "n": 1028,
+          "hit": 27.8,
           "median": 16.1,
-          "lift": 6.6
+          "lift": 6.7
         },
         {
           "bucket": "(10, 20]",
-          "n": 909,
-          "hit": 18.5,
-          "median": 5.4,
+          "n": 903,
+          "hit": 18.7,
+          "median": 5.7,
           "lift": -2.4
         },
         {
           "bucket": "(20, 1000]",
           "n": 980,
-          "hit": 12.9,
-          "median": -6.0,
-          "lift": -8.0
+          "hit": 13.0,
+          "median": -6.1,
+          "lift": -8.1
         }
       ],
-      "spread": 24.0
+      "spread": 23.6
     },
     {
       "feature": "idx_weeks_above_40wma",
@@ -88,76 +88,76 @@
       "buckets": [
         {
           "bucket": "(-1, 0]",
-          "n": 401,
-          "hit": 21.9,
-          "median": 14.0,
-          "lift": 1.0
+          "n": 402,
+          "hit": 21.6,
+          "median": 14.1,
+          "lift": 0.6
         },
         {
           "bucket": "(0, 13]",
-          "n": 940,
-          "hit": 24.8,
-          "median": 11.8,
-          "lift": 3.9
+          "n": 935,
+          "hit": 25.1,
+          "median": 11.7,
+          "lift": 4.0
         },
         {
           "bucket": "(13, 39]",
-          "n": 882,
-          "hit": 28.7,
-          "median": 20.1,
-          "lift": 7.8
+          "n": 883,
+          "hit": 29.3,
+          "median": 20.2,
+          "lift": 8.2
         },
         {
           "bucket": "(39, 78]",
           "n": 832,
-          "hit": 8.2,
-          "median": -10.3,
-          "lift": -12.7
+          "hit": 7.9,
+          "median": -10.6,
+          "lift": -13.2
         },
         {
           "bucket": "(78, 10000]",
           "n": 64,
           "hit": 15.6,
           "median": -5.2,
-          "lift": -5.3
+          "lift": -5.5
         }
       ],
-      "spread": 20.5
+      "spread": 21.4
     },
     {
-      "feature": "pct_off_52wk_high",
-      "label": "STOCK: % off its 52wk high",
+      "feature": "weeks_listed",
+      "label": "STOCK: weeks of listed history at signal",
       "buckets": [
         {
-          "bucket": "(-100.0, -25.0]",
-          "n": 157,
-          "hit": 34.4,
-          "median": 12.6,
-          "lift": 13.5
+          "bucket": "(0, 52]",
+          "n": 133,
+          "hit": 23.3,
+          "median": 1.0,
+          "lift": 2.2
         },
         {
-          "bucket": "(-25.0, -12.0]",
-          "n": 954,
-          "hit": 23.2,
-          "median": 7.7,
-          "lift": 2.3
+          "bucket": "(52, 104]",
+          "n": 122,
+          "hit": 30.3,
+          "median": 17.8,
+          "lift": 9.2
         },
         {
-          "bucket": "(-12.0, -5.0]",
-          "n": 953,
-          "hit": 20.5,
-          "median": 9.0,
-          "lift": -0.4
+          "bucket": "(104, 260]",
+          "n": 962,
+          "hit": 12.4,
+          "median": -5.2,
+          "lift": -8.7
         },
         {
-          "bucket": "(-5.0, 0.01]",
-          "n": 1055,
-          "hit": 17.3,
-          "median": 2.9,
-          "lift": -3.7
+          "bucket": "(260, 10000]",
+          "n": 1899,
+          "hit": 24.7,
+          "median": 12.8,
+          "lift": 3.7
         }
       ],
-      "spread": 17.1
+      "spread": 17.9
     },
     {
       "feature": "price",
@@ -165,69 +165,34 @@
       "buckets": [
         {
           "bucket": "(0.0, 100.0]",
-          "n": 449,
-          "hit": 30.3,
-          "median": 8.6,
-          "lift": 9.4
+          "n": 445,
+          "hit": 30.6,
+          "median": 7.3,
+          "lift": 9.5
         },
         {
           "bucket": "(100.0, 300.0]",
-          "n": 818,
-          "hit": 24.0,
+          "n": 819,
+          "hit": 24.3,
           "median": 6.8,
-          "lift": 3.1
+          "lift": 3.2
         },
         {
           "bucket": "(300.0, 1000.0]",
-          "n": 1148,
-          "hit": 19.8,
-          "median": 8.0,
+          "n": 1149,
+          "hit": 20.0,
+          "median": 7.9,
           "lift": -1.1
         },
         {
           "bucket": "(1000.0, 1000000000.0]",
-          "n": 704,
-          "hit": 13.2,
-          "median": 2.6,
-          "lift": -7.7
+          "n": 703,
+          "hit": 13.1,
+          "median": 2.5,
+          "lift": -8.0
         }
       ],
-      "spread": 17.1
-    },
-    {
-      "feature": "prior_52wk_ret",
-      "label": "STOCK: prior 1-year return",
-      "buckets": [
-        {
-          "bucket": "(-100, 0]",
-          "n": 883,
-          "hit": 28.5,
-          "median": 16.0,
-          "lift": 7.6
-        },
-        {
-          "bucket": "(0, 25]",
-          "n": 948,
-          "hit": 21.3,
-          "median": 11.2,
-          "lift": 0.4
-        },
-        {
-          "bucket": "(25, 60]",
-          "n": 751,
-          "hit": 15.7,
-          "median": -0.9,
-          "lift": -5.2
-        },
-        {
-          "bucket": "(60, 10000]",
-          "n": 412,
-          "hit": 12.4,
-          "median": -8.5,
-          "lift": -8.5
-        }
-      ],
-      "spread": 16.1
+      "spread": 17.5
     },
     {
       "feature": "mcap_cr",
@@ -235,34 +200,104 @@
       "buckets": [
         {
           "bucket": "(0.0, 5000.0]",
-          "n": 1086,
-          "hit": 25.8,
-          "median": 2.6,
-          "lift": 4.9
+          "n": 1088,
+          "hit": 26.4,
+          "median": 2.8,
+          "lift": 5.3
         },
         {
           "bucket": "(5000.0, 15000.0]",
-          "n": 896,
-          "hit": 22.2,
+          "n": 892,
+          "hit": 22.0,
           "median": 7.3,
-          "lift": 1.3
+          "lift": 0.9
         },
         {
           "bucket": "(15000.0, 50000.0]",
-          "n": 678,
-          "hit": 18.9,
-          "median": 9.2,
-          "lift": -2.0
+          "n": 682,
+          "hit": 19.2,
+          "median": 9.3,
+          "lift": -1.9
         },
         {
           "bucket": "(50000.0, 1000000000.0]",
-          "n": 459,
-          "hit": 9.8,
-          "median": 8.3,
-          "lift": -11.1
+          "n": 454,
+          "hit": 9.5,
+          "median": 8.0,
+          "lift": -11.6
         }
       ],
-      "spread": 16.0
+      "spread": 16.9
+    },
+    {
+      "feature": "pct_off_52wk_high",
+      "label": "STOCK: % off its 52wk high",
+      "buckets": [
+        {
+          "bucket": "(-100.0, -25.0]",
+          "n": 153,
+          "hit": 34.6,
+          "median": 14.0,
+          "lift": 13.6
+        },
+        {
+          "bucket": "(-25.0, -12.0]",
+          "n": 958,
+          "hit": 23.0,
+          "median": 7.8,
+          "lift": 1.9
+        },
+        {
+          "bucket": "(-12.0, -5.0]",
+          "n": 949,
+          "hit": 20.7,
+          "median": 8.6,
+          "lift": -0.4
+        },
+        {
+          "bucket": "(-5.0, 0.01]",
+          "n": 1056,
+          "hit": 17.8,
+          "median": 2.9,
+          "lift": -3.3
+        }
+      ],
+      "spread": 16.8
+    },
+    {
+      "feature": "prior_52wk_ret",
+      "label": "STOCK: prior 1-year return",
+      "buckets": [
+        {
+          "bucket": "(-100, 0]",
+          "n": 879,
+          "hit": 28.7,
+          "median": 16.1,
+          "lift": 7.6
+        },
+        {
+          "bucket": "(0, 25]",
+          "n": 945,
+          "hit": 21.9,
+          "median": 11.2,
+          "lift": 0.8
+        },
+        {
+          "bucket": "(25, 60]",
+          "n": 751,
+          "hit": 15.6,
+          "median": -0.9,
+          "lift": -5.5
+        },
+        {
+          "bucket": "(60, 10000]",
+          "n": 415,
+          "hit": 12.3,
+          "median": -8.9,
+          "lift": -8.8
+        }
+      ],
+      "spread": 16.4
     },
     {
       "feature": "ma30_slope_pct",
@@ -271,33 +306,33 @@
         {
           "bucket": "(-100.0, 0.0]",
           "n": 1149,
-          "hit": 23.8,
-          "median": 10.1,
-          "lift": 2.9
+          "hit": 23.9,
+          "median": 10.2,
+          "lift": 2.8
         },
         {
           "bucket": "(0.0, 1.5]",
-          "n": 912,
-          "hit": 19.2,
+          "n": 906,
+          "hit": 19.4,
           "median": 4.7,
           "lift": -1.7
         },
         {
           "bucket": "(1.5, 4.0]",
-          "n": 830,
-          "hit": 16.3,
-          "median": 1.7,
-          "lift": -4.6
+          "n": 829,
+          "hit": 16.2,
+          "median": 1.6,
+          "lift": -4.9
         },
         {
           "bucket": "(4.0, 10000.0]",
-          "n": 228,
-          "hit": 29.8,
+          "n": 232,
+          "hit": 31.0,
           "median": 17.7,
-          "lift": 8.9
+          "lift": 9.9
         }
       ],
-      "spread": 13.5
+      "spread": 14.8
     },
     {
       "feature": "pct_above_ma30",
@@ -305,41 +340,76 @@
       "buckets": [
         {
           "bucket": "(-100, 5]",
-          "n": 768,
-          "hit": 16.5,
-          "median": 5.2,
-          "lift": -4.4
+          "n": 771,
+          "hit": 16.3,
+          "median": 5.0,
+          "lift": -4.7
         },
         {
           "bucket": "(5, 12]",
-          "n": 945,
+          "n": 938,
           "hit": 17.9,
-          "median": 6.5,
-          "lift": -3.0
+          "median": 6.6,
+          "lift": -3.2
         },
         {
           "bucket": "(12, 22]",
-          "n": 908,
-          "hit": 23.2,
-          "median": 7.3,
-          "lift": 2.3
+          "n": 903,
+          "hit": 23.6,
+          "median": 8.4,
+          "lift": 2.5
         },
         {
           "bucket": "(22, 40]",
-          "n": 409,
-          "hit": 29.8,
-          "median": 12.9,
-          "lift": 8.9
+          "n": 416,
+          "hit": 30.8,
+          "median": 10.0,
+          "lift": 9.7
         },
         {
           "bucket": "(40, 10000]",
-          "n": 89,
-          "hit": 25.8,
-          "median": 1.8,
-          "lift": 4.9
+          "n": 88,
+          "hit": 25.0,
+          "median": -1.5,
+          "lift": 3.9
         }
       ],
-      "spread": 13.3
+      "spread": 14.5
+    },
+    {
+      "feature": "gap_pct",
+      "label": "CANDLE: gap from prior week's close (%)",
+      "buckets": [
+        {
+          "bucket": "(-100.0, -1.0]",
+          "n": 190,
+          "hit": 16.3,
+          "median": 3.2,
+          "lift": -4.8
+        },
+        {
+          "bucket": "(-1.0, 0.5]",
+          "n": 1629,
+          "hit": 19.6,
+          "median": 5.9,
+          "lift": -1.5
+        },
+        {
+          "bucket": "(0.5, 3.0]",
+          "n": 1143,
+          "hit": 23.0,
+          "median": 6.9,
+          "lift": 1.9
+        },
+        {
+          "bucket": "(3.0, 1000.0]",
+          "n": 154,
+          "hit": 28.6,
+          "median": 14.0,
+          "lift": 7.5
+        }
+      ],
+      "spread": 12.3
     },
     {
       "feature": "idx_13wk_ret",
@@ -347,34 +417,34 @@
       "buckets": [
         {
           "bucket": "(-100, 0]",
-          "n": 627,
-          "hit": 18.7,
-          "median": 6.2,
-          "lift": -2.2
+          "n": 629,
+          "hit": 18.4,
+          "median": 5.9,
+          "lift": -2.6
         },
         {
           "bucket": "(0, 5]",
-          "n": 859,
-          "hit": 19.1,
-          "median": 4.7,
-          "lift": -1.8
+          "n": 861,
+          "hit": 19.5,
+          "median": 4.8,
+          "lift": -1.6
         },
         {
           "bucket": "(5, 10]",
-          "n": 912,
-          "hit": 18.5,
-          "median": 0.1,
-          "lift": -2.4
+          "n": 901,
+          "hit": 18.8,
+          "median": 0.4,
+          "lift": -2.3
         },
         {
           "bucket": "(10, 1000]",
-          "n": 721,
-          "hit": 28.0,
-          "median": 15.7,
+          "n": 725,
+          "hit": 28.1,
+          "median": 14.9,
           "lift": 7.1
         }
       ],
-      "spread": 9.5
+      "spread": 9.7
     },
     {
       "feature": "vol_surge_x",
@@ -382,62 +452,153 @@
       "buckets": [
         {
           "bucket": "(0.0, 1.0]",
-          "n": 890,
-          "hit": 19.3,
-          "median": 6.8,
+          "n": 891,
+          "hit": 19.5,
+          "median": 7.3,
           "lift": -1.6
         },
         {
           "bucket": "(1.0, 1.5]",
-          "n": 669,
-          "hit": 15.7,
-          "median": 7.6,
-          "lift": -5.2
+          "n": 667,
+          "hit": 15.6,
+          "median": 7.1,
+          "lift": -5.5
         },
         {
           "bucket": "(1.5, 2.5]",
-          "n": 724,
+          "n": 720,
           "hit": 25.1,
-          "median": 11.0,
-          "lift": 4.2
+          "median": 11.2,
+          "lift": 4.1
         },
         {
           "bucket": "(2.5, 1000.0]",
-          "n": 836,
-          "hit": 23.1,
+          "n": 838,
+          "hit": 23.6,
           "median": 0.8,
-          "lift": 2.2
+          "lift": 2.5
         }
       ],
-      "spread": 9.4
+      "spread": 9.5
     },
     {
-      "feature": "breadth",
-      "label": "CROWDING: signals firing same week",
+      "feature": "range_expansion_x",
+      "label": "CANDLE: range vs prior 20wk avg range",
       "buckets": [
         {
-          "bucket": "(10, 15]",
-          "n": 52,
-          "hit": 26.9,
-          "median": 17.3,
-          "lift": 6.0
+          "bucket": "(0.0, 0.8]",
+          "n": 391,
+          "hit": 18.4,
+          "median": 6.2,
+          "lift": -2.7
         },
         {
-          "bucket": "(15, 20]",
-          "n": 136,
-          "hit": 22.1,
-          "median": 9.4,
+          "bucket": "(0.8, 1.2]",
+          "n": 744,
+          "hit": 20.4,
+          "median": 9.1,
+          "lift": -0.7
+        },
+        {
+          "bucket": "(1.2, 1.8]",
+          "n": 920,
+          "hit": 20.9,
+          "median": 6.2,
+          "lift": -0.2
+        },
+        {
+          "bucket": "(1.8, 2.5]",
+          "n": 571,
+          "hit": 26.3,
+          "median": 10.8,
+          "lift": 5.2
+        },
+        {
+          "bucket": "(2.5, 100.0]",
+          "n": 489,
+          "hit": 18.6,
+          "median": -3.6,
+          "lift": -2.5
+        }
+      ],
+      "spread": 7.9
+    },
+    {
+      "feature": "candle_range_pct",
+      "label": "CANDLE: signal-week high-low range (%)",
+      "buckets": [
+        {
+          "bucket": "(0, 6]",
+          "n": 480,
+          "hit": 16.9,
+          "median": 11.7,
+          "lift": -4.2
+        },
+        {
+          "bucket": "(6, 10]",
+          "n": 866,
+          "hit": 20.8,
+          "median": 7.9,
+          "lift": -0.3
+        },
+        {
+          "bucket": "(10, 16]",
+          "n": 947,
+          "hit": 22.8,
+          "median": 6.3,
+          "lift": 1.7
+        },
+        {
+          "bucket": "(16, 25]",
+          "n": 549,
+          "hit": 24.4,
+          "median": 5.0,
+          "lift": 3.3
+        },
+        {
+          "bucket": "(25, 1000]",
+          "n": 273,
+          "hit": 16.8,
+          "median": -8.9,
+          "lift": -4.2
+        }
+      ],
+      "spread": 7.6
+    },
+    {
+      "feature": "close_position",
+      "label": "CANDLE: close position in week's range (1=at high)",
+      "buckets": [
+        {
+          "bucket": "(0.0, 0.4]",
+          "n": 237,
+          "hit": 21.5,
+          "median": 7.4,
+          "lift": 0.4
+        },
+        {
+          "bucket": "(0.4, 0.65]",
+          "n": 675,
+          "hit": 23.9,
+          "median": 12.0,
+          "lift": 2.8
+        },
+        {
+          "bucket": "(0.65, 0.85]",
+          "n": 1188,
+          "hit": 22.3,
+          "median": 5.7,
           "lift": 1.2
         },
         {
-          "bucket": "(20, 1000]",
-          "n": 2904,
-          "hit": 20.6,
-          "median": 5.8,
-          "lift": -0.3
+          "bucket": "(0.85, 1.001]",
+          "n": 1015,
+          "hit": 17.7,
+          "median": 3.5,
+          "lift": -3.4
         }
       ],
-      "spread": 6.3
+      "spread": 6.2
     },
     {
       "feature": "weeks_above_ma30",
@@ -445,34 +606,69 @@
       "buckets": [
         {
           "bucket": "(0, 2]",
-          "n": 1415,
-          "hit": 18.6,
-          "median": 3.6,
-          "lift": -2.3
+          "n": 1410,
+          "hit": 18.7,
+          "median": 3.7,
+          "lift": -2.4
         },
         {
           "bucket": "(2, 5]",
-          "n": 626,
-          "hit": 22.7,
+          "n": 630,
+          "hit": 23.0,
           "median": 4.6,
-          "lift": 1.8
+          "lift": 1.9
         },
         {
           "bucket": "(5, 12]",
-          "n": 525,
-          "hit": 23.4,
-          "median": 10.1,
-          "lift": 2.5
+          "n": 524,
+          "hit": 23.5,
+          "median": 9.2,
+          "lift": 2.4
         },
         {
           "bucket": "(12, 10000]",
-          "n": 553,
-          "hit": 22.4,
+          "n": 552,
+          "hit": 22.8,
           "median": 12.0,
-          "lift": 1.5
+          "lift": 1.7
         }
       ],
       "spread": 4.8
+    },
+    {
+      "feature": "body_share_of_range",
+      "label": "CANDLE: body as share of range",
+      "buckets": [
+        {
+          "bucket": "(0.0, 0.25]",
+          "n": 358,
+          "hit": 19.8,
+          "median": 11.2,
+          "lift": -1.3
+        },
+        {
+          "bucket": "(0.25, 0.45]",
+          "n": 525,
+          "hit": 23.6,
+          "median": 9.9,
+          "lift": 2.5
+        },
+        {
+          "bucket": "(0.45, 0.7]",
+          "n": 1151,
+          "hit": 22.4,
+          "median": 6.9,
+          "lift": 1.3
+        },
+        {
+          "bucket": "(0.7, 1.001]",
+          "n": 1082,
+          "hit": 18.9,
+          "median": 1.8,
+          "lift": -2.2
+        }
+      ],
+      "spread": 4.7
     },
     {
       "feature": "mrs",
@@ -480,41 +676,41 @@
       "buckets": [
         {
           "bucket": "(-100.0, 0.1]",
-          "n": 606,
+          "n": 604,
           "hit": 19.0,
-          "median": 9.7,
-          "lift": -1.9
+          "median": 10.2,
+          "lift": -2.0
         },
         {
           "bucket": "(0.1, 0.3]",
-          "n": 894,
+          "n": 891,
           "hit": 19.6,
-          "median": 6.3,
-          "lift": -1.3
+          "median": 6.5,
+          "lift": -1.4
         },
         {
           "bucket": "(0.3, 0.7]",
-          "n": 832,
+          "n": 833,
           "hit": 21.8,
-          "median": 6.0,
-          "lift": 0.9
+          "median": 6.7,
+          "lift": 0.8
         },
         {
           "bucket": "(0.7, 1.5]",
-          "n": 529,
+          "n": 521,
           "hit": 23.4,
           "median": 4.6,
-          "lift": 2.5
+          "lift": 2.3
         },
         {
           "bucket": "(1.5, 1000.0]",
-          "n": 258,
-          "hit": 22.1,
-          "median": -0.2,
-          "lift": 1.2
+          "n": 267,
+          "hit": 23.6,
+          "median": -1.8,
+          "lift": 2.5
         }
       ],
-      "spread": 4.4
+      "spread": 4.6
     },
     {
       "feature": "pct_above_52wk_low",
@@ -524,32 +720,123 @@
           "bucket": "(0, 25]",
           "n": 496,
           "hit": 21.6,
-          "median": 15.7,
-          "lift": 0.7
+          "median": 15.8,
+          "lift": 0.5
         },
         {
           "bucket": "(25, 50]",
-          "n": 1440,
-          "hit": 19.3,
-          "median": 5.3,
-          "lift": -1.6
+          "n": 1436,
+          "hit": 19.6,
+          "median": 5.6,
+          "lift": -1.4
         },
         {
           "bucket": "(50, 90]",
-          "n": 791,
-          "hit": 22.0,
-          "median": 0.2,
-          "lift": 1.1
+          "n": 789,
+          "hit": 21.9,
+          "median": 0.1,
+          "lift": 0.8
         },
         {
           "bucket": "(90, 10000]",
-          "n": 392,
-          "hit": 23.7,
-          "median": 7.1,
-          "lift": 2.8
+          "n": 395,
+          "hit": 24.1,
+          "median": 6.5,
+          "lift": 3.0
         }
       ],
-      "spread": 4.4
+      "spread": 4.5
+    },
+    {
+      "feature": "candle_body_pct",
+      "label": "CANDLE: signal-week body (close vs open, %)",
+      "buckets": [
+        {
+          "bucket": "(-100, 0]",
+          "n": 189,
+          "hit": 19.0,
+          "median": 5.4,
+          "lift": -2.0
+        },
+        {
+          "bucket": "(0, 3]",
+          "n": 565,
+          "hit": 20.0,
+          "median": 11.5,
+          "lift": -1.1
+        },
+        {
+          "bucket": "(3, 8]",
+          "n": 1170,
+          "hit": 22.2,
+          "median": 8.5,
+          "lift": 1.1
+        },
+        {
+          "bucket": "(8, 15]",
+          "n": 775,
+          "hit": 21.9,
+          "median": 5.3,
+          "lift": 0.9
+        },
+        {
+          "bucket": "(15, 1000]",
+          "n": 416,
+          "hit": 18.8,
+          "median": -6.2,
+          "lift": -2.3
+        }
+      ],
+      "spread": 3.4
+    },
+    {
+      "feature": "breadth",
+      "label": "CROWDING: signals firing same week",
+      "buckets": [
+        {
+          "bucket": "(10, 15]",
+          "n": 56,
+          "hit": 23.2,
+          "median": 15.7,
+          "lift": 2.1
+        },
+        {
+          "bucket": "(15, 20]",
+          "n": 133,
+          "hit": 23.3,
+          "median": 12.0,
+          "lift": 2.2
+        },
+        {
+          "bucket": "(20, 1000]",
+          "n": 2900,
+          "hit": 20.8,
+          "median": 5.8,
+          "lift": -0.3
+        }
+      ],
+      "spread": 2.5
+    },
+    {
+      "feature": "candle_bullish",
+      "label": "CANDLE: signal week closed up",
+      "buckets": [
+        {
+          "bucket": "False",
+          "n": 189,
+          "hit": 19.0,
+          "median": 5.4,
+          "lift": -2.0
+        },
+        {
+          "bucket": "True",
+          "n": 2927,
+          "hit": 21.2,
+          "median": 6.7,
+          "lift": 0.1
+        }
+      ],
+      "spread": 2.2
     },
     {
       "feature": "idx_above_40wma",
@@ -557,33 +844,33 @@
       "buckets": [
         {
           "bucket": "False",
-          "n": 401,
-          "hit": 21.9,
-          "median": 14.0,
-          "lift": 1.0
+          "n": 402,
+          "hit": 21.6,
+          "median": 14.1,
+          "lift": 0.6
         },
         {
           "bucket": "True",
-          "n": 2718,
-          "hit": 20.8,
+          "n": 2714,
+          "hit": 21.0,
           "median": 4.8,
-          "lift": -0.2
+          "lift": -0.1
         }
       ],
-      "spread": 1.1
+      "spread": 0.6
     }
   ],
   "confound_check": [
     {
       "feature": "idx_52wk_ret",
-      "mean_within_year_delta": 7.6,
+      "mean_within_year_delta": 7.9,
       "years_tested": 9,
       "years_positive": 8,
       "consistent": true,
       "per_year": [
         {
           "year": 2017,
-          "delta": 4.7
+          "delta": 5.1
         },
         {
           "year": 2018,
@@ -595,19 +882,19 @@
         },
         {
           "year": 2020,
-          "delta": 29.7
+          "delta": 28.5
         },
         {
           "year": 2021,
-          "delta": 15.3
+          "delta": 15.6
         },
         {
           "year": 2022,
-          "delta": 9.8
+          "delta": 10.5
         },
         {
           "year": 2023,
-          "delta": 5.6
+          "delta": 6.7
         },
         {
           "year": 2024,
@@ -615,13 +902,13 @@
         },
         {
           "year": 2025,
-          "delta": 1.3
+          "delta": 2.6
         }
       ]
     },
     {
       "feature": "price",
-      "mean_within_year_delta": 7.4,
+      "mean_within_year_delta": 7.1,
       "years_tested": 9,
       "years_positive": 7,
       "consistent": true,
@@ -640,33 +927,33 @@
         },
         {
           "year": 2020,
-          "delta": 1.0
+          "delta": 0.4
         },
         {
           "year": 2021,
-          "delta": 9.7
+          "delta": 8.9
         },
         {
           "year": 2022,
-          "delta": 26.1
+          "delta": 26.3
         },
         {
           "year": 2023,
-          "delta": 24.1
+          "delta": 24.9
         },
         {
           "year": 2024,
-          "delta": 2.9
+          "delta": 2.1
         },
         {
           "year": 2025,
-          "delta": 3.7
+          "delta": 2.1
         }
       ]
     },
     {
       "feature": "mcap_cr",
-      "mean_within_year_delta": 6.5,
+      "mean_within_year_delta": 6.6,
       "years_tested": 9,
       "years_positive": 7,
       "consistent": true,
@@ -685,40 +972,40 @@
         },
         {
           "year": 2020,
-          "delta": 8.9
+          "delta": 8.3
         },
         {
           "year": 2021,
-          "delta": 17.0
+          "delta": 17.3
         },
         {
           "year": 2022,
-          "delta": 13.5
+          "delta": 13.7
         },
         {
           "year": 2023,
-          "delta": 10.3
+          "delta": 11.9
         },
         {
           "year": 2024,
-          "delta": 2.9
+          "delta": 1.4
         },
         {
           "year": 2025,
-          "delta": 5.8
+          "delta": 6.3
         }
       ]
     },
     {
       "feature": "idx_weeks_above_40wma",
-      "mean_within_year_delta": 6.3,
+      "mean_within_year_delta": 6.5,
       "years_tested": 9,
       "years_positive": 7,
       "consistent": true,
       "per_year": [
         {
           "year": 2017,
-          "delta": 4.7
+          "delta": 4.6
         },
         {
           "year": 2018,
@@ -730,40 +1017,40 @@
         },
         {
           "year": 2020,
-          "delta": 26.7
+          "delta": 25.4
         },
         {
           "year": 2021,
-          "delta": 16.5
+          "delta": 18.5
         },
         {
           "year": 2022,
-          "delta": -6.8
+          "delta": -7.8
         },
         {
           "year": 2023,
-          "delta": 7.8
+          "delta": 10.7
         },
         {
           "year": 2024,
-          "delta": -1.9
+          "delta": -1.3
         },
         {
           "year": 2025,
-          "delta": 3.6
+          "delta": 2.4
         }
       ]
     },
     {
       "feature": "vol_surge_x",
-      "mean_within_year_delta": 3.9,
+      "mean_within_year_delta": 4.2,
       "years_tested": 9,
       "years_positive": 6,
       "consistent": false,
       "per_year": [
         {
           "year": 2017,
-          "delta": -3.3
+          "delta": -3.4
         },
         {
           "year": 2018,
@@ -775,27 +1062,27 @@
         },
         {
           "year": 2020,
-          "delta": 6.9
+          "delta": 7.6
         },
         {
           "year": 2021,
-          "delta": -3.6
+          "delta": -1.8
         },
         {
           "year": 2022,
-          "delta": 5.4
+          "delta": 5.3
         },
         {
           "year": 2023,
-          "delta": 12.8
+          "delta": 14.0
         },
         {
           "year": 2024,
-          "delta": 5.1
+          "delta": 4.5
         },
         {
           "year": 2025,
-          "delta": 10.1
+          "delta": 9.6
         }
       ]
     },
@@ -808,7 +1095,7 @@
       "per_year": [
         {
           "year": 2017,
-          "delta": 1.5
+          "delta": 2.7
         },
         {
           "year": 2018,
@@ -816,44 +1103,44 @@
         },
         {
           "year": 2019,
-          "delta": 12.2
+          "delta": 12.4
         },
         {
           "year": 2020,
-          "delta": 18.0
+          "delta": 18.2
         },
         {
           "year": 2021,
-          "delta": -5.5
+          "delta": -6.2
         },
         {
           "year": 2022,
-          "delta": -8.8
+          "delta": -8.3
         },
         {
           "year": 2023,
-          "delta": 3.5
+          "delta": 0.8
         },
         {
           "year": 2024,
-          "delta": 0.0
+          "delta": 0.1
         },
         {
           "year": 2025,
-          "delta": 10.4
+          "delta": 11.7
         }
       ]
     },
     {
       "feature": "idx_13wk_ret",
-      "mean_within_year_delta": 2.7,
+      "mean_within_year_delta": 2.9,
       "years_tested": 9,
-      "years_positive": 4,
+      "years_positive": 3,
       "consistent": false,
       "per_year": [
         {
           "year": 2017,
-          "delta": -1.4
+          "delta": -1.3
         },
         {
           "year": 2018,
@@ -861,37 +1148,37 @@
         },
         {
           "year": 2019,
-          "delta": -1.8
+          "delta": -1.6
         },
         {
           "year": 2020,
-          "delta": 13.0
+          "delta": 13.7
         },
         {
           "year": 2021,
-          "delta": 8.7
+          "delta": 9.8
         },
         {
           "year": 2022,
-          "delta": 16.6
+          "delta": 16.5
         },
         {
           "year": 2023,
-          "delta": -6.4
+          "delta": -7.0
         },
         {
           "year": 2024,
-          "delta": 0.2
+          "delta": -0.1
         },
         {
           "year": 2025,
-          "delta": -2.3
+          "delta": -1.7
         }
       ]
     },
     {
       "feature": "mrs",
-      "mean_within_year_delta": 1.8,
+      "mean_within_year_delta": 2.2,
       "years_tested": 9,
       "years_positive": 5,
       "consistent": false,
@@ -906,37 +1193,37 @@
         },
         {
           "year": 2019,
-          "delta": -6.7
+          "delta": -6.8
         },
         {
           "year": 2020,
-          "delta": 6.9
+          "delta": 8.2
         },
         {
           "year": 2021,
-          "delta": 1.4
+          "delta": 1.8
         },
         {
           "year": 2022,
-          "delta": -0.9
+          "delta": -1.1
         },
         {
           "year": 2023,
-          "delta": 4.3
+          "delta": 6.2
         },
         {
           "year": 2024,
-          "delta": 2.1
+          "delta": 2.2
         },
         {
           "year": 2025,
-          "delta": 13.2
+          "delta": 12.6
         }
       ]
     },
     {
       "feature": "ma30_slope_pct",
-      "mean_within_year_delta": -0.7,
+      "mean_within_year_delta": -0.6,
       "years_tested": 9,
       "years_positive": 3,
       "consistent": false,
@@ -951,44 +1238,44 @@
         },
         {
           "year": 2019,
-          "delta": -5.2
+          "delta": -5.3
         },
         {
           "year": 2020,
-          "delta": -7.0
+          "delta": -5.6
         },
         {
           "year": 2021,
-          "delta": 18.2
+          "delta": 18.5
         },
         {
           "year": 2022,
-          "delta": -7.2
+          "delta": -7.4
         },
         {
           "year": 2023,
-          "delta": -9.5
+          "delta": -9.8
         },
         {
           "year": 2024,
-          "delta": -0.6
+          "delta": -0.7
         },
         {
           "year": 2025,
-          "delta": 3.8
+          "delta": 3.4
         }
       ]
     },
     {
       "feature": "weeks_above_ma30",
-      "mean_within_year_delta": -1.7,
+      "mean_within_year_delta": -1.8,
       "years_tested": 9,
       "years_positive": 3,
       "consistent": false,
       "per_year": [
         {
           "year": 2017,
-          "delta": 1.4
+          "delta": 1.3
         },
         {
           "year": 2018,
@@ -996,7 +1283,7 @@
         },
         {
           "year": 2019,
-          "delta": -1.9
+          "delta": -2.1
         },
         {
           "year": 2020,
@@ -1004,15 +1291,15 @@
         },
         {
           "year": 2021,
-          "delta": -9.7
+          "delta": -9.1
         },
         {
           "year": 2022,
-          "delta": -17.8
+          "delta": -17.4
         },
         {
           "year": 2023,
-          "delta": 4.8
+          "delta": 4.9
         },
         {
           "year": 2024,
@@ -1020,20 +1307,20 @@
         },
         {
           "year": 2025,
-          "delta": -1.3
+          "delta": -2.8
         }
       ]
     },
     {
       "feature": "idx_off_52wk_high",
-      "mean_within_year_delta": -2.8,
+      "mean_within_year_delta": -2.7,
       "years_tested": 9,
-      "years_positive": 3,
+      "years_positive": 4,
       "consistent": false,
       "per_year": [
         {
           "year": 2017,
-          "delta": -1.2
+          "delta": -1.3
         },
         {
           "year": 2018,
@@ -1045,7 +1332,7 @@
         },
         {
           "year": 2020,
-          "delta": -27.2
+          "delta": -26.2
         },
         {
           "year": 2021,
@@ -1053,25 +1340,25 @@
         },
         {
           "year": 2022,
-          "delta": 12.0
+          "delta": 12.8
         },
         {
           "year": 2023,
-          "delta": -3.4
+          "delta": -3.6
         },
         {
           "year": 2024,
-          "delta": 1.7
+          "delta": 0.8
         },
         {
           "year": 2025,
-          "delta": -0.5
+          "delta": 0.1
         }
       ]
     },
     {
       "feature": "pct_off_52wk_high",
-      "mean_within_year_delta": -3.6,
+      "mean_within_year_delta": -3.0,
       "years_tested": 9,
       "years_positive": 2,
       "consistent": false,
@@ -1090,27 +1377,27 @@
         },
         {
           "year": 2020,
-          "delta": -20.7
+          "delta": -20.2
         },
         {
           "year": 2021,
-          "delta": -3.6
+          "delta": -2.8
         },
         {
           "year": 2022,
-          "delta": -0.9
+          "delta": -1.1
         },
         {
           "year": 2023,
-          "delta": -2.6
+          "delta": -0.7
         },
         {
           "year": 2024,
-          "delta": 0.0
+          "delta": 0.8
         },
         {
           "year": 2025,
-          "delta": 0.5
+          "delta": 2.1
         }
       ]
     },
@@ -1118,7 +1405,7 @@
       "feature": "prior_52wk_ret",
       "mean_within_year_delta": -3.6,
       "years_tested": 9,
-      "years_positive": 4,
+      "years_positive": 3,
       "consistent": false,
       "per_year": [
         {
@@ -1131,37 +1418,37 @@
         },
         {
           "year": 2019,
-          "delta": 3.9
+          "delta": 4.0
         },
         {
           "year": 2020,
-          "delta": -15.3
+          "delta": -14.8
         },
         {
           "year": 2021,
-          "delta": -8.9
+          "delta": -8.1
         },
         {
           "year": 2022,
-          "delta": -10.9
+          "delta": -11.0
         },
         {
           "year": 2023,
-          "delta": 0.9
+          "delta": 0.5
         },
         {
           "year": 2024,
-          "delta": 1.9
+          "delta": 2.7
         },
         {
           "year": 2025,
-          "delta": 0.1
+          "delta": -1.6
         }
       ]
     },
     {
       "feature": "pct_above_ma30",
-      "mean_within_year_delta": -4.2,
+      "mean_within_year_delta": -4.8,
       "years_tested": 9,
       "years_positive": 3,
       "consistent": false,
@@ -1180,27 +1467,27 @@
         },
         {
           "year": 2020,
-          "delta": -5.5
+          "delta": -4.9
         },
         {
           "year": 2021,
-          "delta": -9.7
+          "delta": -11.3
         },
         {
           "year": 2022,
-          "delta": -10.6
+          "delta": -11.6
         },
         {
           "year": 2023,
-          "delta": -3.4
+          "delta": -5.4
         },
         {
           "year": 2024,
-          "delta": -5.0
+          "delta": -5.8
         },
         {
           "year": 2025,
-          "delta": -7.9
+          "delta": -8.4
         }
       ]
     }
@@ -1230,51 +1517,51 @@
   "stack": [
     {
       "step": "All Stage 2 confirmations",
-      "n": 3119,
-      "hit": 20.9,
-      "median": 6.6
+      "n": 3116,
+      "hit": 21.1,
+      "median": 6.5
     },
     {
       "step": "+ index above its 40wk MA",
-      "n": 2718,
-      "hit": 20.8,
+      "n": 2714,
+      "hit": 21.0,
       "median": 4.8
     },
     {
       "step": "+ index within 8% of its 52wk high",
-      "n": 2663,
-      "hit": 20.0,
+      "n": 2659,
+      "hit": 20.2,
       "median": 4.0
     },
     {
       "step": "+ stock's 30wk MA rising",
-      "n": 1860,
-      "hit": 19.4,
-      "median": 4.5
+      "n": 1856,
+      "hit": 19.6,
+      "median": 4.4
     },
     {
       "step": "+ not a crowded signal week",
-      "n": 41,
-      "hit": 4.9,
-      "median": 0.2
+      "n": 45,
+      "hit": 8.9,
+      "median": 0.5
     }
   ],
   "split_validation": {
     "first_half": {
       "window": "2017-08-21 to 2022-08-29",
-      "base_n": 1561,
-      "base_hit": 18.6,
+      "base_n": 1560,
+      "base_hit": 18.8,
       "filtered_n": 30,
       "filtered_hit": 0.0,
       "filtered_median": -3.1
     },
     "second_half": {
       "window": "2022-09-05 to 2025-08-11",
-      "base_n": 1558,
-      "base_hit": 23.2,
-      "filtered_n": 11,
-      "filtered_hit": 18.2,
-      "filtered_median": 21.1
+      "base_n": 1556,
+      "base_hit": 23.4,
+      "filtered_n": 15,
+      "filtered_hit": 26.7,
+      "filtered_median": 31.2
     }
   }
 }
