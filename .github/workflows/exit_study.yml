@@ -1,0 +1,79 @@
+name: Stage 2 Exit Study (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      years:
+        description: "Years of signal history"
+        required: false
+        default: "9"
+      min_mcap_cr:
+        description: "Market cap floor, Rs crore"
+        required: false
+        default: "2000"
+      cost_pct:
+        description: "Round-trip cost per trade, %"
+        required: false
+        default: "0.3"
+      capital:
+        description: "Capital per trade, Rs"
+        required: false
+        default: "10000"
+      limit:
+        description: "Cap universe size for a quick test (0 = full universe)"
+        required: false
+        default: "0"
+      tag:
+        description: "Suffix for output filenames"
+        required: false
+        default: "exits"
+
+permissions:
+  contents: write
+
+jobs:
+  exits:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run exit study
+        run: |
+          python exit_study.py \
+            --years "${{ inputs.years }}" \
+            --min-mcap-cr "${{ inputs.min_mcap_cr }}" \
+            --cost-pct "${{ inputs.cost_pct }}" \
+            --capital "${{ inputs.capital }}" \
+            --limit "${{ inputs.limit }}" \
+            --tag "${{ inputs.tag }}"
+
+      - name: Commit and push results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add output/backtest/
+          git diff --staged --quiet || git commit -m "Stage 2 exit study: ${{ inputs.tag }} ($(date -u +'%Y-%m-%d %H:%M UTC'))"
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main && git push && break
+            echo "Push attempt $i failed - retrying in 10s..."
+            sleep 10
+          done
+
+      - name: Summary
+        if: always()
+        run: |
+          if [ -f "output/backtest/exits_${{ inputs.tag }}.md" ]; then
+            cat "output/backtest/exits_${{ inputs.tag }}.md" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No report produced - check the run log above." >> "$GITHUB_STEP_SUMMARY"
+          fi
