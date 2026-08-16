@@ -1,0 +1,58 @@
+name: Stage 2 Screener v2 - India (backtest-tuned)
+
+# Runs stage2_screener_v2.py. Completely independent of scan_india.yml:
+# different script, different output folder (output/v2/), different watchlist.
+# The original screener and its schedule are unaffected.
+
+on:
+  schedule:
+    - cron: '0 11 * * 5'    # Friday 16:30 IST (11:00 UTC) - after NSE close, final weekly data
+    # Only ONE run a week, unlike the original's two. v2's whole point is the
+    # confirmed weekly close; a mid-week partial reading is exactly what its
+    # filters are meant to avoid acting on. Add the 11:00 IST cron below if you
+    # want the early look as well:
+    # - cron: '30 5 * * 5'  # Friday 11:00 IST - week not yet closed
+  workflow_dispatch:
+    inputs:
+      market:
+        description: "Market to scan (IN or US). NOTE: v2's filters were derived from Indian data only and are untested on US stocks."
+        required: false
+        default: "IN"
+
+permissions:
+  contents: write
+
+jobs:
+  scan-v2:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run v2 scan
+        env:
+          # Scheduled runs have no inputs, so default to IN
+          MARKET: ${{ inputs.market || 'IN' }}
+        run: python stage2_screener_v2.py
+
+      - name: Commit and push results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add output/v2/
+          git diff --staged --quiet || git commit -m "Update v2 screener results ($(date -u +'%Y-%m-%d %H:%M UTC'))"
+          # The original scan may be pushing at the same time - retry on rejection.
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main && git push && break
+            echo "Push attempt $i failed (another workflow likely pushed) - retrying in 10s..."
+            sleep 10
+          done
