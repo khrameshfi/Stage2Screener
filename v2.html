@@ -1,0 +1,1022 @@
+<div id="app-root"></div>
+<div id="s2-preview" hidden>
+  <div class="s2p-hd">
+    <span class="s2p-sym" id="s2p-sym"></span>
+    <span id="s2p-meta" style="color:var(--text-muted);font-size:11px;"></span>
+    <span class="s2p-seg" id="s2p-ctype">
+      <button type="button" data-v="candle">Candles</button><button type="button" data-v="line">Line</button>
+    </span>
+    <span class="s2p-seg" id="s2p-crange">
+      <button type="button" data-v="6M">6M</button><button type="button" data-v="1Y">1Y</button><button type="button" data-v="3Y">3Y</button>
+    </span>
+    <span class="s2p-hint" id="s2p-read"></span>
+  </div>
+  <div id="s2p-box">
+    <canvas id="s2p-canvas"></canvas>
+    <div class="s2p-msg" id="s2p-msg">Loading price history&hellip;</div>
+  </div>
+  <div class="s2p-ft">
+    <span><i class="s2p-ma"></i>30-Week MA</span>
+    <span><i class="s2p-ref"></i><span id="s2p-refname">Benchmark</span> rebased</span>
+    <span><i class="s2p-hi"></i>Period high</span>
+    <span id="s2p-chg" style="margin-left:auto"></span>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+  :root {
+    --bg: #12151C;
+    --panel: #1A1E28;
+    --panel-2: #20242F;
+    --border: #2C3140;
+    --text: #E9E7E2;
+    --text-muted: #98A0AC;
+    --accent: #C6A15B;
+    --accent-dim: #8F7640;
+    --green: #4FAE8A;
+    --red: #D1585A;
+    --font-mono: 'SF Mono', Menlo, Consolas, 'Courier New', monospace;
+    --font-ui: -apple-system, 'Segoe UI', Roboto, sans-serif;
+  }
+  #app-root { background: transparent; font-family: var(--font-ui); color: var(--text); }
+  .s2-wrap.light {
+    --bg: #FFFFFF;
+    --panel: #F3F3F1;
+    --panel-2: #EBEBE7;
+    --border: #DCDCD7;
+    --text: #1A1D23;
+    --text-muted: #6B7280;
+    --accent: #A8823F;
+    --accent-dim: #7A5F2E;
+    --green: #2E8B67;
+    --red: #B23A3D;
+  }
+  .s2-wrap {
+    background: var(--bg);
+    /* #app-root sets color:var(--text) but it sits OUTSIDE .s2-wrap, so that value
+       resolves against the DARK palette and any text without its own colour
+       inherits near-white - invisible in light mode. Re-declaring it here, inside
+       the element that defines the light palette, makes it resolve correctly. */
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 22px 20px 16px;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  .s2-header {
+    display: flex; justify-content: space-between; align-items: baseline;
+    flex-wrap: wrap; gap: 8px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 14px; margin-bottom: 12px;
+  }
+  .s2-title {
+    font-family: Georgia, serif; font-size: 21px; letter-spacing: 0.02em;
+    color: var(--accent); font-weight: 700; margin: 0;
+  }
+  .s2-sub { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .s2-status { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); text-align: right; }
+  .s2-status a { color: var(--accent-dim); text-decoration: none; }
+  .s2-status a:hover { text-decoration: underline; }
+  .s2-theme-toggle {
+    font-family: var(--font-mono); font-size: 11px;
+    background: var(--panel-2); color: var(--text);
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: 6px 11px; cursor: pointer; white-space: nowrap;
+    display: inline-block;
+  }
+  .s2-theme-toggle:hover { border-color: var(--accent-dim); }
+
+  .s2-v2tag {
+    font-family: var(--font-mono); font-size: 11px; vertical-align: middle;
+    background: var(--accent); color: var(--bg); border-radius: 4px;
+    padding: 2px 7px; margin-left: 6px; font-weight: 700; letter-spacing: .04em;
+  }
+  .s2-regime {
+    display: flex; gap: 11px; align-items: flex-start;
+    font-family: var(--font-mono); font-size: 12px; line-height: 1.6;
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: 12px 14px; margin-bottom: 10px;
+  }
+  .s2-regime.open { background: rgba(79,174,138,0.10); border-left: 3px solid var(--green); }
+  .s2-regime.shut { background: rgba(209,88,90,0.10); border-left: 3px solid var(--red); }
+  .s2-regime b { color: var(--text); }
+  .s2-regime.open .s2-regime-dot { background: var(--green); }
+  .s2-regime.shut .s2-regime-dot { background: var(--red); }
+  .s2-regime-dot {
+    width: 9px; height: 9px; border-radius: 50%; flex: none; margin-top: 6px;
+  }
+  .s2-regime-sub { color: var(--text-muted); font-size: 11px; }
+  table.s2-table thead th.grp-v2 { border-top: 2px solid rgba(198,161,91,0.4); }
+  .s2-banner {
+    font-family: var(--font-mono); font-size: 11.5px;
+    background: var(--panel-2); border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 6px; padding: 10px 12px; margin-bottom: 14px;
+    line-height: 1.6;
+  }
+  .s2-banner b { color: var(--accent); font-weight: 700; }
+  .s2-banner .cf { color: var(--green); font-weight: 700; }
+  .s2-banner .pv { color: var(--accent); font-weight: 700; }
+
+  .s2-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+  .s2-tabs, .s2-filters { display: flex; gap: 5px; }
+  .s2-tab, .s2-fbtn {
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.04em;
+    background: var(--panel); color: var(--text-muted);
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: 6px 12px; cursor: pointer; text-transform: uppercase;
+  }
+  .s2-tab.active { color: var(--bg); background: var(--accent); border-color: var(--accent); font-weight: 700; }
+  .s2-fbtn.active { color: var(--text); background: var(--panel-2); border-color: var(--accent-dim); font-weight: 700; }
+  .s2-sep { width: 1px; height: 22px; background: var(--border); margin: 0 3px; }
+  .s2-search {
+    flex: 1; min-width: 120px; font-family: var(--font-mono); font-size: 12px;
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 6px; padding: 7px 10px; color: var(--text);
+  }
+  .s2-search::placeholder { color: var(--text-muted); }
+  .s2-top-btn {
+    font-family: var(--font-mono); font-size: 11px;
+    background: var(--panel-2); color: var(--accent-dim);
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: 7px 11px; cursor: pointer; text-decoration: none; display: inline-block;
+    white-space: nowrap;
+  }
+  .s2-top-btn:hover { color: var(--accent); border-color: var(--accent-dim); }
+  .s2-top-btn.disabled { opacity: 0.35; cursor: default; pointer-events: none; }
+
+  .s2-table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; -webkit-overflow-scrolling: touch; }
+  .s2-cards { display: none; }
+
+  .s2-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+  }
+  .s2-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .s2-card-top .s2-ticker { font-size: 15px; }
+  .s2-card-meta {
+    font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);
+    padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px solid var(--border);
+  }
+  .s2-card-cols { display: flex; gap: 10px; }
+  .s2-card-col { flex: 1; min-width: 0; }
+  .s2-card-col-title {
+    font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+    letter-spacing: 0.06em; margin-bottom: 6px;
+  }
+  .s2-card-col-title.cf { color: var(--green); }
+  .s2-card-col-title.pv { color: var(--accent); }
+  .s2-card-row {
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--font-mono); font-size: 12px;
+    padding: 3px 0;
+  }
+  .s2-card-row .s2-card-label { color: var(--text-muted); font-size: 10.5px; }
+  table.s2-table { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 12px; }
+  table.s2-table th, table.s2-table td { padding: 8px 9px; text-align: right; white-space: nowrap; }
+  table.s2-table th:first-child, table.s2-table td:first-child {
+    text-align: left;
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: var(--bg);
+    box-shadow: 1px 0 0 var(--border);
+  }
+  table.s2-table thead th:first-child { background: var(--panel-2); z-index: 3; }
+  table.s2-table tbody tr:hover td:first-child { background: var(--panel); }
+  table.s2-table th:nth-child(2), table.s2-table td:nth-child(2) { text-align: center; }
+  table.s2-table thead th {
+    background: var(--panel-2); color: var(--text-muted); font-weight: 600;
+    font-size: 9.5px; letter-spacing: 0.05em; text-transform: uppercase;
+    cursor: pointer; user-select: none; border-bottom: 1px solid var(--border);
+    position: sticky; top: 0;
+  }
+  table.s2-table thead th:hover, table.s2-table thead th.sorted { color: var(--accent); }
+  table.s2-table thead th.grp-c { border-top: 2px solid rgba(79,174,138,0.4); }
+  table.s2-table thead th.grp-l { border-top: 2px solid rgba(198,161,91,0.4); }
+  table.s2-table tbody tr { border-bottom: 1px solid var(--border); }
+  table.s2-table tbody tr:hover { background: var(--panel); }
+  table.s2-table tbody tr:last-child { border-bottom: none; }
+  .s2-ticker { color: var(--text); font-weight: 700; text-decoration: none; }
+  .s2-ticker:hover { color: var(--accent); text-decoration: underline; }
+  .s2-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 9.5px; font-weight: 700; letter-spacing: 0.03em; }
+  .s2-badge.up { background: rgba(79,174,138,0.15); color: var(--green); }
+  .s2-badge.down { background: rgba(209,88,90,0.15); color: var(--red); }
+  .s2-badge.flat { background: rgba(152,160,172,0.15); color: var(--text-muted); }
+  .s2-badge.sig-both { background: rgba(79,174,138,0.2); color: var(--green); }
+  .s2-badge.sig-conf { background: rgba(79,174,138,0.13); color: var(--green); }
+  .s2-badge.sig-prov { background: rgba(198,161,91,0.18); color: var(--accent); }
+  .s2-yes { color: var(--green); }
+  .s2-no { color: var(--text-muted); }
+  .s2-pos { color: var(--green); }
+  .s2-neg { color: var(--red); }
+  .s2-dim { color: var(--text-muted); }
+  .s2-cell { color: var(--text); }
+  .s2-empty, .s2-loading, .s2-error {
+    font-family: var(--font-mono); font-size: 12px; color: var(--text-muted);
+    padding: 30px 10px; text-align: center;
+  }
+  .s2-error { color: var(--red); }
+  .s2-footer { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); margin-top: 12px; text-align: center; line-height: 1.6; }
+  .s2-toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: var(--text); color: var(--bg);
+    font-family: var(--font-mono); font-size: 12.5px; font-weight: 700;
+    padding: 11px 20px; border-radius: 8px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+    z-index: 1000; animation: s2-toast-in 0.2s ease-out;
+    white-space: nowrap;
+  }
+  .s2-toast.err { background: var(--red); color: #fff; }
+  @keyframes s2-toast-in {
+    from { opacity: 0; transform: translateX(-50%) translateY(12px); }
+    to { opacity: 1; transform: translateX(-50%) translateY(0); }
+  }
+  @media (max-width: 680px) {
+    .s2-wrap { padding: 16px 12px 12px; }
+    .s2-header { flex-direction: column; }
+    .s2-status { text-align: left; }
+    .s2-table-wrap { display: none; }
+    .s2-cards { display: block; }
+    .s2-controls { gap: 6px; }
+    .s2-sep { display: none; }
+    .s2-tabs, .s2-filters { flex: 1; }
+    .s2-tab, .s2-fbtn { flex: 1; text-align: center; }
+    .s2-search { flex-basis: 100%; order: 1; padding: 9px 10px; font-size: 13px; }
+    .s2-tab, .s2-fbtn, .s2-top-btn { padding: 9px 13px; font-size: 12px; }
+    .s2-card-cols { flex-direction: column; gap: 10px; }
+    #s2-preview { display: none !important; }
+  }
+
+  /* ── Hover chart preview (self-drawn from weekly OHLC shards, see script) ─── */
+  #s2-preview {
+    position: fixed; z-index: 9999; width: 640px; height: 400px;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+    box-shadow: 0 14px 34px rgba(0,0,0,0.45); overflow: hidden;
+    display: flex; flex-direction: column; font-family: var(--font-ui);
+    --chart-line: #6C9BFF; --chart-fill: rgba(108,155,255,0.14);
+  }
+  #s2-preview[hidden] { display: none !important; }
+  #s2-preview.light {
+    --bg: #FFFFFF; --panel: #F3F3F1; --panel-2: #EBEBE7; --border: #DCDCD7;
+    --text: #1A1D23; --text-muted: #6B7280; --accent: #A8823F; --accent-dim: #7A5F2E;
+    --green: #2E8B67; --red: #B23A3D;
+    --chart-line: #2E5FD9; --chart-fill: rgba(46,95,217,0.10);
+    box-shadow: 0 14px 34px rgba(31,35,40,0.22);
+  }
+  .s2p-hd {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    padding: 8px 12px; border-bottom: 1px solid var(--border);
+    background: var(--panel-2); font-family: var(--font-mono); font-size: 12px;
+  }
+  .s2p-sym { font-weight: 700; font-size: 13px; color: var(--text); }
+  .s2p-hint {
+    margin-left: auto; color: var(--text-muted); font-size: 10.5px;
+    white-space: nowrap; font-variant-numeric: tabular-nums;
+  }
+  .s2p-seg { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  .s2p-seg button {
+    border: 0; border-radius: 0; padding: 3px 8px; font-size: 10.5px; cursor: pointer;
+    background: transparent; color: var(--text-muted); font-family: var(--font-mono); line-height: 1.6;
+  }
+  .s2p-seg button + button { border-left: 1px solid var(--border); }
+  .s2p-seg button.on { background: rgba(198,161,91,0.18); color: var(--accent); font-weight: 700; }
+  #s2p-box { flex: 1; min-height: 0; position: relative; }
+  #s2p-canvas { display: block; width: 100%; height: 100%; }
+  .s2p-msg {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    text-align: center; padding: 0 24px; color: var(--text-muted);
+    font-family: var(--font-mono); font-size: 11.5px; line-height: 1.5;
+  }
+  .s2p-ft {
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    padding: 6px 12px; border-top: 1px solid var(--border);
+    background: var(--panel-2); font-family: var(--font-mono); font-size: 10.5px; color: var(--text-muted);
+  }
+  .s2p-ft i {
+    display: inline-block; width: 12px; height: 0;
+    border-top: 2px solid currentColor; margin-right: 4px; vertical-align: middle;
+  }
+  .s2p-ma { color: var(--accent); }
+  .s2p-ref { color: var(--text-muted); }
+  .s2p-hi { color: var(--green); }
+  tr[data-sym] { cursor: default; }
+</style>
+<script>
+(function () {
+  const REPO = "khrameshfi/Stage2Screener";
+  const BRANCH = "main";
+  // v2 writes to its own folder, so this dashboard can never collide with the
+  // original one at index.html. Only India is produced today - the v2 filters were
+  // derived from Indian data and there is no scheduled v2 US scan.
+  const URLS = {
+    IN: `https://raw.githubusercontent.com/${REPO}/${BRANCH}/output/v2/stage2_screener_v2_IN_results.csv`,
+    US: `https://raw.githubusercontent.com/${REPO}/${BRANCH}/output/v2/stage2_screener_v2_US_results.csv`,
+  };
+
+  const state = {
+    market: "IN",
+    theme: "light",
+    data: { IN: null, US: null },
+    error: { IN: null, US: null },
+    filter: "all",          // all | confirmed | provisional
+    sortKey: "mrs_confirmed",
+    sortDir: -1,
+    search: "",
+    toast: null,   // { message, type: 'ok' | 'err' }
+  };
+
+  const root = document.getElementById("app-root");
+
+  function fmtMktCap(v, mkt) {
+    const n = Number(v);
+    if (!n || isNaN(n)) return '<span class="s2-dim">—</span>';
+    let out;
+    if (mkt === "IN") out = "\u20B9" + Math.round(n / 1e7).toLocaleString("en-IN") + " Cr";
+    else if (n >= 1e9) out = "$" + (n / 1e9).toFixed(2) + "B";
+    else out = "$" + (n / 1e6).toFixed(0) + "M";
+    return `<span class="s2-cell">${out}</span>`;
+  }
+  function fmtPrice(v, mkt) {
+    const n = Number(v);
+    if (isNaN(n)) return '<span class="s2-dim">—</span>';
+    const out = (mkt === "IN" ? "\u20B9" : "$") + n.toLocaleString(mkt === "IN" ? "en-IN" : "en-US",
+      { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return `<span class="s2-cell">${out}</span>`;
+  }
+  function fmtVol(v) {
+    const n = Number(v);
+    if (!n || isNaN(n)) return '<span class="s2-dim">—</span>';
+    let out;
+    if (n >= 1e6) out = (n / 1e6).toFixed(2) + "M";
+    else if (n >= 1e3) out = (n / 1e3).toFixed(0) + "K";
+    else out = String(n);
+    return `<span class="s2-cell">${out}</span>`;
+  }
+  function fmtWeekDate(v) {
+    if (!v) return '<span class="s2-dim">—</span>';
+    const d = new Date(v + "T00:00:00");
+    if (isNaN(d)) return '<span class="s2-dim">—</span>';
+    const mo = d.toLocaleString("en-US", { month: "short" });
+    return `<span class="s2-cell">${mo} ${d.getDate()}</span>`;
+  }
+  function fmtMrs(v) {
+    if (v === null || v === undefined || v === "" || isNaN(Number(v))) return '<span class="s2-dim">—</span>';
+    const n = Number(v);
+    return `<span class="${n > 0 ? "s2-pos" : "s2-neg"}">${n.toFixed(2)}</span>`;
+  }
+  function slopeBadge(v) {
+    if (v === "up") return '<span class="s2-badge up">&#9650;UP</span>';
+    if (v === "down") return '<span class="s2-badge down">&#9660;DN</span>';
+    if (v === "flat") return '<span class="s2-badge flat">&#9679;FLAT</span>';
+    return '<span class="s2-badge flat">—</span>';
+  }
+  function boolMark(v) {
+    const s = String(v).toLowerCase();
+    if (s === "true") return '<span class="s2-yes">&#10003;</span>';
+    if (s === "false") return '<span class="s2-no">&#10007;</span>';
+    return '<span class="s2-no">—</span>';
+  }
+  // v2 only ever lists stocks whose prior year was flat or negative - that IS the
+  // filter - so this is shown for magnitude, not as a pass/fail signal.
+  function fmtPrior(v) {
+    if (v === null || v === undefined || v === "" || isNaN(Number(v))) return '<span class="s2-dim">—</span>';
+    const n = Number(v);
+    return `<span class="${n <= -15 ? "s2-pos" : "s2-cell"}">${n.toFixed(1)}%</span>`;
+  }
+  function ipoBadge(v) {
+    const on = v === true || String(v).toLowerCase() === "true";
+    return on ? '<span class="s2-badge sig-prov" title="Listed within ~2 years. In the backtest, 1-2 year old listings doubled at 17.2% vs a 7.9% baseline - a tiebreaker, not a filter.">IPO</span>'
+              : '<span class="s2-dim">—</span>';
+  }
+
+  function sigBadge(v) {
+    if (v === "BOTH") return '<span class="s2-badge sig-both">BOTH</span>';
+    if (v === "CONFIRMED") return '<span class="s2-badge sig-conf">CONFIRMED</span>';
+    if (v === "PROVISIONAL") return '<span class="s2-badge sig-prov">PROVISIONAL</span>';
+    return '<span class="s2-badge flat">—</span>';
+  }
+
+  // ── Hover chart preview ────────────────────────────────────────────────────
+  // Self-drawn on canvas from weekly OHLC shards written by the scan (output/history_IN/
+  // and output/history_US/, one file per starting letter — see write_history() in
+  // stage2_screener.py). Same approach RSind uses for its hover chart, adapted to weekly
+  // bars and split per market so an IN scan never touches US shards or vice versa.
+  const HIST_DIR = mkt => `output/v2/history_${mkt}/`;
+  const BENCH_NAME = { IN: "Nifty 50", US: "S&P 500" };
+  const HOVER_DELAY = 300, HIDE_GRACE = 220;
+  const HINT_TEXT = "click ticker for TradingView · Esc to close";
+
+  const preview = document.getElementById("s2-preview");
+  const s2pBox = document.getElementById("s2p-box");
+  const s2pCv = document.getElementById("s2p-canvas");
+  const s2pMsg = document.getElementById("s2p-msg");
+  const s2pSym = document.getElementById("s2p-sym");
+  const s2pMeta = document.getElementById("s2p-meta");
+  const s2pRead = document.getElementById("s2p-read");
+  const s2pChg = document.getElementById("s2p-chg");
+  const s2pRefName = document.getElementById("s2p-refname");
+
+  let hoverEnabled = true;
+  try { if (localStorage.getItem("s2-hover") === "0") hoverEnabled = false; } catch (e) {}
+
+  let showTimer = null, hideTimer = null, shownSym = null, shownMkt = null;
+
+  // Per-market caches — flipping the IN/US tab doesn't re-fetch a shard already loaded.
+  const DATES = { IN: null, US: null };
+  const REFC = { IN: null, US: null };
+  const SERIES = { IN: Object.create(null), US: Object.create(null) };
+  const shardCache = { IN: {}, US: {} };
+
+  const shardOf = sym => {
+    const c = sym.charAt(0).toUpperCase();
+    return (c >= "A" && c <= "Z") ? c : "_";
+  };
+
+  function loadShard(mkt, sym) {
+    const key = shardOf(sym);
+    const cache = shardCache[mkt];
+    if (!cache[key]) {
+      cache[key] = fetch(HIST_DIR(mkt) + key + ".json")
+        .then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+        .then(j => {
+          if (!DATES[mkt]) DATES[mkt] = j.dates;
+          if (!REFC[mkt]) REFC[mkt] = j.refc;
+          Object.assign(SERIES[mkt], j.series);
+        })
+        .catch(err => { delete cache[key]; throw err; });
+    }
+    return cache[key];
+  }
+
+  function showMsg(html) {
+    s2pMsg.innerHTML = html;
+    s2pMsg.style.display = "flex";
+    s2pCv.style.display = "none";
+    s2pChg.textContent = "";
+  }
+
+  const RANGES = { "6M": 26, "1Y": 52, "3Y": 156 };   // weekly bars
+  let chartType = "candle", rangeKey = "1Y";
+  try {
+    const t = localStorage.getItem("s2-chart-type");
+    const r = localStorage.getItem("s2-chart-range");
+    if (t === "line" || t === "candle") chartType = t;
+    if (r && RANGES[r]) rangeKey = r;
+  } catch (e) {}
+
+  function paintSeg(el, value) {
+    el.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.v === value));
+  }
+  const segType = document.getElementById("s2p-ctype");
+  const segRange = document.getElementById("s2p-crange");
+  paintSeg(segType, chartType);
+  paintSeg(segRange, rangeKey);
+  segType.addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    chartType = b.dataset.v; paintSeg(segType, chartType);
+    try { localStorage.setItem("s2-chart-type", chartType); } catch (err) {}
+    if (shownSym) drawFor(shownMkt, shownSym);
+  });
+  segRange.addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    rangeKey = b.dataset.v; paintSeg(segRange, rangeKey);
+    try { localStorage.setItem("s2-chart-range", rangeKey); } catch (err) {}
+    if (shownSym) drawFor(shownMkt, shownSym);
+  });
+
+  const PAD = { l: 8, r: 56, t: 10, b: 18 };
+  let CHART = null;
+  const cssVar = n => getComputedStyle(preview).getPropertyValue(n).trim();
+
+  function sma(arr, n) {
+    const out = new Array(arr.length).fill(null);
+    let sum = 0;
+    for (let i = 0; i < arr.length; i++) {
+      sum += arr[i];
+      if (i >= n) sum -= arr[i - n];
+      if (i >= n - 1) out[i] = sum / n;
+    }
+    return out;
+  }
+
+  function prepareChart(mkt, sym) {
+    const rec = SERIES[mkt][sym];
+    const dates = DATES[mkt];
+    if (!rec || !dates || !rec.c || !rec.c.length) return null;
+
+    const maFull = rec.c.length > 30 ? sma(rec.c, 30) : null;
+    const n = Math.min(RANGES[rangeKey] || 52, rec.c.length);
+    const from = rec.c.length - n;
+
+    const closes = rec.c.slice(from);
+    const bars = (chartType === "candle" && rec.o && rec.h && rec.l)
+      ? { o: rec.o.slice(from), h: rec.h.slice(from), l: rec.l.slice(from) }
+      : null;
+    const ma = maFull ? maFull.slice(from) : null;
+    const barDates = dates.slice(rec.s + from, rec.s + from + n);
+
+    let ref = null;
+    const refc = REFC[mkt];
+    if (refc && refc.c) {
+      const a = rec.s + from - refc.s;
+      if (a >= 0 && a + n <= refc.c.length) {
+        const seg = refc.c.slice(a, a + n);
+        if (seg[0]) { const k = closes[0] / seg[0]; ref = seg.map(v => v * k); }
+      }
+    }
+
+    const hi = bars ? Math.max(...bars.h) : Math.max(...closes);
+    let lo = bars ? Math.min(...bars.l) : Math.min(...closes);
+    let up = hi;
+    if (ref) { lo = Math.min(lo, ...ref); up = Math.max(up, ...ref); }
+    if (ma) for (const v of ma) if (v != null) { lo = Math.min(lo, v); up = Math.max(up, v); }
+    const padY = (up - lo) * 0.06 || 1;
+
+    return { sym, mkt, closes, bars, dates: barDates, ma, ref, hi, min: lo - padY, max: up + padY };
+  }
+
+  function renderChart(cursor) {
+    if (!CHART) return;
+    const { closes, bars, dates, ma, ref, hi, min, max, mkt } = CHART;
+    const n = closes.length;
+
+    const dpr = window.devicePixelRatio || 1;
+    const w = s2pBox.clientWidth, h = s2pBox.clientHeight;
+    if (!w || !h) return;
+    s2pCv.width = Math.round(w * dpr); s2pCv.height = Math.round(h * dpr);
+    const g = s2pCv.getContext("2d");
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.clearRect(0, 0, w, h);
+
+    const iw = w - PAD.l - PAD.r, ih = h - PAD.t - PAD.b;
+    const slot = iw / n;
+    const X = i => PAD.l + (i + 0.5) * slot;
+    const Y = v => PAD.t + (max - v) * ih / (max - min);
+
+    const cMuted = cssVar("--text-muted"), cGrid = "rgba(140,140,140,.18)";
+    const cAccent = cssVar("--accent"), cGreen = cssVar("--green"), cRed = cssVar("--red");
+    const cLine = cssVar("--chart-line"), cFill = cssVar("--chart-fill");
+    g.font = "10px " + cssVar("--font-mono");
+    g.textBaseline = "middle";
+    const currSym = mkt === "IN" ? "₹" : "$";
+
+    g.strokeStyle = cGrid; g.fillStyle = cMuted; g.lineWidth = 1;
+    for (let k = 0; k <= 4; k++) {
+      const v = min + (max - min) * k / 4, y = Math.round(Y(v)) + 0.5;
+      g.beginPath(); g.moveTo(PAD.l, y); g.lineTo(w - PAD.r, y); g.stroke();
+      g.textAlign = "left";
+      g.fillText(currSym + (v < 100 ? v.toFixed(1) : Math.round(v).toLocaleString()), w - PAD.r + 5, Y(v));
+    }
+
+    g.textAlign = "center";
+    let lastMonth = -1;
+    for (let i = 0; i < n; i++) {
+      const d = new Date(dates[i] * 1000), m = d.getUTCMonth();
+      if (m !== lastMonth) {
+        lastMonth = m;
+        const x = X(i);
+        if (x > PAD.l + 14 && x < w - PAD.r - 14) {
+          g.strokeStyle = cGrid;
+          g.beginPath(); g.moveTo(Math.round(x) + 0.5, PAD.t); g.lineTo(Math.round(x) + 0.5, h - PAD.b); g.stroke();
+          g.fillStyle = cMuted;
+          g.fillText(d.toLocaleDateString("en-US", { month: "short", year: "2-digit", timeZone: "UTC" }), x, h - PAD.b / 2 - 1);
+        }
+      }
+    }
+
+    const line = (arr, colour, width, dash) => {
+      g.save();
+      g.strokeStyle = colour; g.lineWidth = width; g.setLineDash(dash || []);
+      g.beginPath();
+      let started = false;
+      for (let i = 0; i < arr.length; i++) {
+        if (arr[i] == null) { started = false; continue; }
+        const x = X(i), y = Y(arr[i]);
+        if (started) g.lineTo(x, y); else { g.moveTo(x, y); started = true; }
+      }
+      g.stroke(); g.restore();
+    };
+
+    // Period high
+    g.save();
+    g.strokeStyle = cGreen; g.lineWidth = 1; g.setLineDash([4, 4]); g.globalAlpha = .7;
+    g.beginPath(); g.moveTo(PAD.l, Y(hi)); g.lineTo(w - PAD.r, Y(hi)); g.stroke();
+    g.restore();
+
+    if (ref) line(ref, cMuted, 1, [3, 3]);
+
+    if (bars) {
+      const bw = Math.max(1, Math.min(9, Math.floor(slot * 0.7)));
+      for (let i = 0; i < n; i++) {
+        const o = bars.o[i], c = closes[i], colour = c >= o ? cGreen : cRed;
+        const x = Math.round(X(i)) + (bw % 2 ? 0.5 : 0);
+        g.strokeStyle = colour; g.fillStyle = colour; g.lineWidth = 1;
+        g.beginPath(); g.moveTo(x, Y(bars.h[i])); g.lineTo(x, Y(bars.l[i])); g.stroke();
+        if (bw >= 2) {
+          const top = Math.min(Y(o), Y(c));
+          g.fillRect(Math.round(X(i) - bw / 2), Math.round(top), bw, Math.max(1, Math.round(Math.abs(Y(c) - Y(o)))));
+        }
+      }
+    } else {
+      g.save();
+      g.beginPath();
+      g.moveTo(X(0), Y(closes[0]));
+      for (let i = 1; i < n; i++) g.lineTo(X(i), Y(closes[i]));
+      g.lineTo(X(n - 1), h - PAD.b); g.lineTo(X(0), h - PAD.b); g.closePath();
+      g.fillStyle = cFill; g.fill();
+      g.restore();
+      line(closes, cLine, 1.75);
+    }
+
+    if (ma) line(ma, cAccent, 1.25);
+
+    if (cursor != null && cursor >= 0 && cursor < n) {
+      const x = Math.round(X(cursor)) + 0.5;
+      g.save();
+      g.strokeStyle = cMuted; g.lineWidth = 1; g.setLineDash([2, 3]); g.globalAlpha = .8;
+      g.beginPath(); g.moveTo(x, PAD.t); g.lineTo(x, h - PAD.b); g.stroke();
+      g.restore();
+      if (!bars) {
+        g.fillStyle = cLine;
+        g.beginPath(); g.arc(X(cursor), Y(closes[cursor]), 3, 0, Math.PI * 2); g.fill();
+      }
+      const d = new Date(dates[cursor] * 1000);
+      const day = d.toLocaleDateString("en-US", { day: "2-digit", month: "short", year: "2-digit", timeZone: "UTC" });
+      const px = v => currSym + (v < 100 ? v.toFixed(2) : v.toFixed(v < 1000 ? 1 : 0));
+      s2pRead.textContent = bars
+        ? `Wk of ${day}  O ${px(bars.o[cursor])} H ${px(bars.h[cursor])} L ${px(bars.l[cursor])} C ${px(closes[cursor])}`
+        : `Wk of ${day}  ${px(closes[cursor])}`;
+    } else {
+      s2pRead.textContent = HINT_TEXT;
+    }
+
+    const chg = (closes[n - 1] / closes[0] - 1) * 100;
+    const offHi = (closes[n - 1] / hi - 1) * 100;
+    s2pChg.innerHTML =
+      `<span style="color:${chg >= 0 ? cGreen : cRed}">${chg >= 0 ? "+" : ""}${chg.toFixed(1)}%</span>` +
+      ` over ${rangeKey} · ${offHi.toFixed(1)}% off ${rangeKey} high`;
+  }
+
+  function drawFor(mkt, sym) {
+    CHART = prepareChart(mkt, sym);
+    if (!CHART) {
+      showMsg("No price history for <b>" + sym.replace(".NS", "") + "</b> yet.<br>" +
+              "Needs at least ~35 weeks of data since it first cleared the market-cap filter.");
+      return;
+    }
+    s2pMsg.style.display = "none";
+    s2pCv.style.display = "block";
+    renderChart();
+  }
+
+  s2pBox.addEventListener("mousemove", e => {
+    if (!CHART || s2pCv.style.display === "none") return;
+    const r = s2pCv.getBoundingClientRect();
+    const n = CHART.closes.length;
+    const i = Math.floor((e.clientX - r.left - PAD.l) * n / (r.width - PAD.l - PAD.r));
+    renderChart(Math.max(0, Math.min(n - 1, i)));
+  });
+  s2pBox.addEventListener("mouseleave", () => { if (CHART) renderChart(); });
+
+  function positionPreview(anchorRect) {
+    const w = preview.offsetWidth || 640, h = preview.offsetHeight || 400;
+    const pad = 12;
+    let left = anchorRect.right + pad;
+    if (left + w > window.innerWidth - pad) left = anchorRect.left - w - pad;
+    if (left < pad) left = Math.max(pad, window.innerWidth - w - pad);
+    let top = anchorRect.top - 40;
+    top = Math.min(Math.max(pad, top), window.innerHeight - h - pad);
+    preview.style.left = left + "px";
+    preview.style.top = top + "px";
+  }
+
+  function showPreview(tr) {
+    const sym = tr.dataset.sym, mkt = tr.dataset.mkt;
+    if (!sym || !mkt) return;
+    positionPreview(tr.getBoundingClientRect());
+    preview.hidden = false;
+    preview.classList.toggle("light", state.theme === "light");
+    if (sym === shownSym && mkt === shownMkt) return;
+
+    shownSym = sym; shownMkt = mkt;
+    CHART = null;
+    s2pSym.textContent = mkt === "IN" ? sym.replace(/\.NS$/, "") + " · NSE" : sym;
+    s2pMeta.textContent = tr.dataset.mrs ? "MRS " + tr.dataset.mrs : "";
+    s2pRefName.textContent = BENCH_NAME[mkt] || "Benchmark";
+    s2pRead.textContent = HINT_TEXT;
+
+    if (SERIES[mkt][sym]) { drawFor(mkt, sym); return; }
+
+    showMsg("Loading price history…");
+    loadShard(mkt, sym)
+      .then(() => { if (shownSym === sym && shownMkt === mkt) drawFor(mkt, sym); })
+      .catch(err => {
+        if (shownSym !== sym || shownMkt !== mkt) return;
+        showMsg("Could not load <code>" + HIST_DIR(mkt) + shardOf(sym) + ".json</code> (" + err.message + ").<br>" +
+                "These files are written by the scan workflow — they'll appear after the next scheduled run.");
+      });
+  }
+
+  function hidePreview(immediate) {
+    clearTimeout(hideTimer);
+    const doHide = () => { preview.hidden = true; shownSym = null; shownMkt = null; CHART = null; };
+    if (immediate) doHide();
+    else hideTimer = setTimeout(doHide, HIDE_GRACE);
+  }
+
+  root.addEventListener("mouseover", e => {
+    if (!hoverEnabled) return;
+    const tr = e.target.closest("tr[data-sym]");
+    if (!tr) return;
+    clearTimeout(hideTimer);
+    clearTimeout(showTimer);
+    showTimer = setTimeout(() => showPreview(tr), HOVER_DELAY);
+  });
+  root.addEventListener("mouseout", e => {
+    const to = e.relatedTarget;
+    if (to && to.closest && (to.closest("tr[data-sym]") || to.closest("#s2-preview"))) return;
+    clearTimeout(showTimer);
+    hidePreview(false);
+  });
+  preview.addEventListener("mouseenter", () => clearTimeout(hideTimer));
+  preview.addEventListener("mouseleave", () => hidePreview(false));
+  document.addEventListener("keydown", e => { if (e.key === "Escape") hidePreview(true); });
+  window.addEventListener("scroll", () => hidePreview(true), { passive: true });
+
+  async function loadMarket(mkt) {
+    try {
+      const r = await fetch(URLS[mkt] + "?t=" + Date.now());
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      const t = await r.text();
+      state.data[mkt] = Papa.parse(t.trim(), { header: true, dynamicTyping: true, skipEmptyLines: true }).data;
+      state.error[mkt] = null;
+    } catch (e) {
+      state.error[mkt] = e.message || "Fetch failed";
+    }
+    render();
+  }
+
+  function visibleRows() {
+    const rows = state.data[state.market] || [];
+    let f = rows.slice();
+    if (state.filter === "confirmed") f = f.filter(r => r.signal === "BOTH" || r.signal === "CONFIRMED");
+    else if (state.filter === "provisional") f = f.filter(r => r.signal === "PROVISIONAL");
+    const q = state.search.trim().toUpperCase();
+    if (q) f = f.filter(r => String(r.Ticker || "").toUpperCase().includes(q));
+    f.sort((a, b) => {
+      let av = a[state.sortKey], bv = b[state.sortKey];
+      if (typeof av === "string" && typeof bv === "string") return av.localeCompare(bv) * state.sortDir;
+      av = Number(av); bv = Number(bv);
+      if (isNaN(av)) av = -Infinity;
+      if (isNaN(bv)) bv = -Infinity;
+      return (av - bv) * state.sortDir;
+    });
+    return f;
+  }
+
+  const COLS = [
+    { k: "Ticker",               l: "Ticker",     g: "" },
+    { k: "signal",               l: "Signal",     g: "" },
+    { k: "mrs_confirmed",        l: "MRS",        g: "grp-c" },
+    { k: "cross_week_confirmed", l: "Crossed",    g: "grp-c" },
+    { k: "above_30ma_confirmed", l: ">30MA",      g: "grp-c" },
+    { k: "ma_slope_confirmed",   l: "Slope",      g: "grp-c" },
+    { k: "vol_spike_confirmed",  l: "Vol",        g: "grp-c" },
+    { k: "mrs_live",             l: "MRS",        g: "grp-l" },
+    { k: "cross_week_live",      l: "Crossed",    g: "grp-l" },
+    { k: "above_30ma_live",      l: ">30MA",      g: "grp-l" },
+    { k: "ma_slope_live",        l: "Slope",      g: "grp-l" },
+    { k: "vol_spike_live",       l: "Vol",        g: "grp-l" },
+    { k: "prior_1y_return",      l: "1Y Prior",   g: "grp-v2" },
+    { k: "recent_ipo",           l: "IPO",        g: "grp-v2" },
+    { k: "last_close",           l: "Price",      g: "" },
+    { k: "market_cap",           l: "Mkt Cap",    g: "" },
+    { k: "avg_volume",           l: "Avg Vol",    g: "" },
+  ];
+
+  function render() {
+    const mkt = state.market;
+    const loading = state.data[mkt] === null && !state.error[mkt];
+    const err = state.error[mkt];
+    const rows = (err || loading) ? [] : visibleRows();
+    const all = state.data[mkt] || [];
+
+    // Banner: derive the data's own view of where the week boundary sits.
+    let banner = "";
+    if (!loading && !err && all.length) {
+      const partial = all.find(r => r.bar_status === "partial");
+      const lastBar = all[0] && all[0].last_bar_week ? all[0].last_bar_week : null;
+      const nConf = all.filter(r => r.signal === "BOTH" || r.signal === "CONFIRMED").length;
+      const nProv = all.filter(r => r.signal === "PROVISIONAL").length;
+      // v2's headline addition: the market-regime gate. This is a property of the
+      // INDEX, not of any stock, so it is identical on every row - read it off the
+      // first one. It is the strongest single factor the backtest found.
+      const idxRet = all[0] && all[0].index_1y_return != null ? Number(all[0].index_1y_return) : null;
+      const gateOpen = all[0] ? (all[0].regime_ok === true || String(all[0].regime_ok).toLowerCase() === "true") : null;
+      let regimeBanner = "";
+      if (idxRet !== null && !isNaN(idxRet)) {
+        regimeBanner = gateOpen
+          ? `<div class="s2-regime open">
+               <span class="s2-regime-dot"></span>
+               <div><b>MARKET GATE OPEN</b> &mdash; Nifty 1-year return <b>${idxRet.toFixed(1)}%</b> (at or below the +10% limit).<br/>
+               <span class="s2-regime-sub">Historically the favourable end: signals fired with the index up under ~5% reached +50% about 31% of the time, versus 10% when it was up more than 25%.</span></div>
+             </div>`
+          : `<div class="s2-regime shut">
+               <span class="s2-regime-dot"></span>
+               <div><b>MARKET GATE SHUT</b> &mdash; Nifty 1-year return <b>${idxRet.toFixed(1)}%</b> (above the +10% limit).<br/>
+               <span class="s2-regime-sub">The market has already run. These were historically the worst entries &mdash; roughly a 10% hit rate versus 31% when the index was quiet. Rows are still listed so you can see them; size down or sit out.</span></div>
+             </div>`;
+      }
+      banner = regimeBanner + `
+        <div class="s2-banner">
+          Newest weekly bar in this scan: <b>${lastBar ? fmtWeekDate(lastBar).replace(/<[^>]*>/g, "") : "unknown"}</b>
+          &mdash; ${partial ? "<b>still in progress</b> (partial week)" : "<b>closed</b> (finished week)"}<br/>
+          <span class="cf">CONFIRMED (${nConf})</span> = computed on finished weeks only; cannot reverse.
+          <span class="pv">PROVISIONAL (${nProv})</span> = relies on the in-progress week; can still reverse before it closes.<br/>
+          <span class="s2-regime-sub">Every stock here also passed: prior 1-year return &le; 0% (ignored for a year), market cap Rs 2,000&ndash;15,000cr, volume &ge;1.5&times; its 20-week average.</span>
+        </div>`;
+    }
+
+    let body;
+    if (loading) {
+      body = `<div class="s2-loading">Fetching latest ${mkt === "IN" ? "India" : "US"} results&hellip;</div>`;
+    } else if (err) {
+      body = `<div class="s2-error">Could not load results (${err}). The file may not exist yet, or the latest scan hasn't committed results.</div>`;
+    } else if (!rows.length) {
+      body = `<div class="s2-empty">Nothing matches the current filter.</div>`;
+    } else {
+      body = `<div class="s2-table-wrap"><table class="s2-table">
+        <thead>
+          <tr>
+            <th colspan="2" style="border:none;background:var(--bg);cursor:default;"></th>
+            <th colspan="5" class="grp-c" style="text-align:center;cursor:default;color:var(--green);">Confirmed (closed weeks)</th>
+            <th colspan="5" class="grp-l" style="text-align:center;cursor:default;color:var(--accent);">Live (incl. partial week)</th>
+            <th colspan="5" style="border:none;background:var(--bg);cursor:default;"></th>
+          </tr>
+          <tr>${COLS.map(c =>
+            `<th class="${c.g} ${state.sortKey === c.k ? "sorted" : ""}" onclick="window.__s2sort('${c.k}')">${c.l}${state.sortKey === c.k ? (state.sortDir === -1 ? " &#9660;" : " &#9650;") : ""}</th>`
+          ).join("")}</tr>
+        </thead>
+        <tbody>${rows.map(r => `<tr data-sym="${r.Ticker || ""}" data-mkt="${mkt}" data-mrs="${r.mrs_confirmed ?? r.mrs_live ?? ""}">
+          <td><a class="s2-ticker" href="https://www.tradingview.com/chart/?symbol=${encodeURIComponent(r.tv_symbol || r.Ticker || "")}" target="_blank" rel="noopener">${r.Ticker || ""}</a></td>
+          <td>${sigBadge(r.signal)}</td>
+          <td>${fmtMrs(r.mrs_confirmed)}</td>
+          <td>${fmtWeekDate(r.cross_week_confirmed)}</td>
+          <td>${boolMark(r.above_30ma_confirmed)}</td>
+          <td>${slopeBadge(r.ma_slope_confirmed)}</td>
+          <td>${boolMark(r.vol_spike_confirmed)}</td>
+          <td>${fmtMrs(r.mrs_live)}</td>
+          <td>${fmtWeekDate(r.cross_week_live)}</td>
+          <td>${boolMark(r.above_30ma_live)}</td>
+          <td>${slopeBadge(r.ma_slope_live)}</td>
+          <td>${boolMark(r.vol_spike_live)}</td>
+          <td>${fmtPrior(r.prior_1y_return)}</td>
+          <td>${ipoBadge(r.recent_ipo)}</td>
+          <td>${fmtPrice(r.last_close, mkt)}</td>
+          <td>${fmtMktCap(r.market_cap, mkt)}</td>
+          <td>${fmtVol(r.avg_volume)}</td>
+        </tr>`).join("")}</tbody>
+      </table></div>
+      <div class="s2-cards">${rows.map(r => `
+        <div class="s2-card">
+          <div class="s2-card-top">
+            <a class="s2-ticker" href="https://www.tradingview.com/chart/?symbol=${encodeURIComponent(r.tv_symbol || r.Ticker || "")}" target="_blank" rel="noopener">${r.Ticker || ""}</a>
+            ${sigBadge(r.signal)}
+          </div>
+          <div class="s2-card-meta">${fmtPrice(r.last_close, mkt)} &middot; ${fmtMktCap(r.market_cap, mkt)} &middot; Vol ${fmtVol(r.avg_volume)}<br/>
+            Prior 1Y ${fmtPrior(r.prior_1y_return)} ${r.recent_ipo === true || String(r.recent_ipo).toLowerCase() === "true" ? ipoBadge(true) : ""}</div>
+          <div class="s2-card-cols">
+            <div class="s2-card-col">
+              <div class="s2-card-col-title cf">CONFIRMED</div>
+              <div class="s2-card-row"><span class="s2-card-label">MRS</span>${fmtMrs(r.mrs_confirmed)}</div>
+              <div class="s2-card-row"><span class="s2-card-label">Crossed</span>${fmtWeekDate(r.cross_week_confirmed)}</div>
+              <div class="s2-card-row"><span class="s2-card-label">&gt;30MA</span>${boolMark(r.above_30ma_confirmed)}</div>
+              <div class="s2-card-row"><span class="s2-card-label">Slope</span>${slopeBadge(r.ma_slope_confirmed)}</div>
+              <div class="s2-card-row"><span class="s2-card-label">Vol Spike</span>${boolMark(r.vol_spike_confirmed)}</div>
+            </div>
+            <div class="s2-card-col">
+              <div class="s2-card-col-title pv">LIVE</div>
+              <div class="s2-card-row"><span class="s2-card-label">MRS</span>${fmtMrs(r.mrs_live)}</div>
+              <div class="s2-card-row"><span class="s2-card-label">Crossed</span>${fmtWeekDate(r.cross_week_live)}</div>
+              <div class="s2-card-row"><span class="s2-card-label">&gt;30MA</span>${boolMark(r.above_30ma_live)}</div>
+              <div class="s2-card-row"><span class="s2-card-label">Slope</span>${slopeBadge(r.ma_slope_live)}</div>
+              <div class="s2-card-row"><span class="s2-card-label">Vol Spike</span>${boolMark(r.vol_spike_live)}</div>
+            </div>
+          </div>
+        </div>`).join("")}</div>`;
+    }
+
+    const canExport = rows.length > 0;
+
+    root.innerHTML = `
+      <div class="s2-wrap ${state.theme === "light" ? "light" : ""}">
+        <div class="s2-header">
+          <div>
+            <p class="s2-title">STAGE 2 SCREENER <span class="s2-v2tag">v2</span></p>
+            <div class="s2-sub">Backtest-tuned &middot; market gate + quiet-stock filter &middot; NSE only</div>
+          </div>
+          <div class="s2-status">
+            <div class="s2-theme-toggle" onclick="window.__s2theme()" style="margin-bottom:6px;">
+              ${state.theme === "dark" ? "&#9728; Light mode" : "&#9789; Dark mode"}
+            </div>
+            <a href="./index.html">&larr; original screener (v1)</a> &middot;
+            <a href="https://github.com/${REPO}" target="_blank">repo</a><br/>
+            ${loading ? "loading&hellip;" : err ? "load failed" : rows.length + " of " + all.length + " shown"}
+          </div>
+        </div>
+        ${banner}
+        <div class="s2-controls">
+          <div class="s2-tabs">
+            <div class="s2-tab active" title="v2 runs on the Indian market only">India</div>
+          </div>
+          <div class="s2-sep"></div>
+          <div class="s2-filters">
+            <div class="s2-fbtn ${state.filter === "all" ? "active" : ""}" onclick="window.__s2filter('all')">All</div>
+            <div class="s2-fbtn ${state.filter === "confirmed" ? "active" : ""}" onclick="window.__s2filter('confirmed')">Confirmed</div>
+            <div class="s2-fbtn ${state.filter === "provisional" ? "active" : ""}" onclick="window.__s2filter('provisional')">Provisional</div>
+          </div>
+          <input class="s2-search" placeholder="Filter by ticker&hellip;" value="${state.search}" oninput="window.__s2search(this.value)" />
+          <div class="s2-top-btn ${canExport ? "" : "disabled"}" onclick="window.__s2copy()">&#128203; Copy</div>
+          <div class="s2-top-btn ${canExport ? "" : "disabled"}" onclick="window.__s2download()">&#8681; Download</div>
+          <div class="s2-top-btn" onclick="window.__s2refresh()">&#8635; Refresh</div>
+          <div class="s2-top-btn" onclick="window.__s2hovertoggle()" title="Hover a row to preview its weekly chart">&#9889; Chart: ${hoverEnabled ? "On" : "Off"}</div>
+        </div>
+        ${body}
+        <div class="s2-footer">
+          Copy / Download build a TradingView watchlist from exactly the rows shown above &mdash; change the filter first to control what's included.<br/>
+          Click any column header to sort &middot; hover a ticker row for its weekly chart (desktop only) &middot; data refreshes each scheduled scan
+        </div>
+      </div>
+      ${state.toast ? `<div class="s2-toast ${state.toast.type === "err" ? "err" : ""}">${state.toast.message}</div>` : ""}`;
+  }
+
+  function showToast(message, type) {
+    state.toast = { message, type: type || "ok" };
+    render();
+    clearTimeout(window.__s2toastTimer);
+    window.__s2toastTimer = setTimeout(() => { state.toast = null; render(); }, 2200);
+  }
+
+  window.__s2theme = () => {
+    // Rows don't change, so the open hover chart (if any) stays open — just
+    // re-synced to the new theme's colours, same as RSind does.
+    state.theme = state.theme === "dark" ? "light" : "dark";
+    preview.classList.toggle("light", state.theme === "light");
+    if (CHART) renderChart();
+    render();
+  };
+  window.__s2tab = m => { hidePreview(true); state.market = m; render(); };
+  window.__s2filter = f => { hidePreview(true); state.filter = f; render(); };
+  window.__s2search = v => { hidePreview(true); state.search = v; render(); };
+  window.__s2sort = k => {
+    hidePreview(true);
+    if (state.sortKey === k) state.sortDir *= -1;
+    else { state.sortKey = k; state.sortDir = -1; }
+    render();
+  };
+  window.__s2refresh = () => {
+    hidePreview(true);
+    state.data[state.market] = null;
+    state.error[state.market] = null;
+    render();
+    loadMarket(state.market);
+  };
+  window.__s2hovertoggle = () => {
+    hoverEnabled = !hoverEnabled;
+    try { localStorage.setItem("s2-hover", hoverEnabled ? "1" : "0"); } catch (e) {}
+    if (!hoverEnabled) hidePreview(true);
+    render();
+  };
+  window.__s2copy = () => {
+    const rows = visibleRows();
+    const txt = rows.map(r => r.tv_symbol).filter(Boolean).join(",");
+    if (!txt) { showToast("Nothing to copy for this filter", "err"); return; }
+    navigator.clipboard.writeText(txt).then(() => {
+      showToast(`\u2713 Copied ${rows.length} ticker${rows.length === 1 ? "" : "s"} to clipboard`, "ok");
+    }).catch(() => {
+      showToast("Copy failed \u2014 try Download instead", "err");
+    });
+  };
+  window.__s2download = () => {
+    const rows = visibleRows();
+    const txt = rows.map(r => r.tv_symbol).filter(Boolean).join(",");
+    if (!txt) { showToast("Nothing to download for this filter", "err"); return; }
+    const blob = new Blob([txt], { type: "text/plain" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `stage2_watchlist_${state.market}_${state.filter}.txt`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    showToast(`\u2713 Downloaded ${rows.length} ticker${rows.length === 1 ? "" : "s"}`, "ok");
+  };
+
+  render();
+  loadMarket("IN");
+  loadMarket("US");
+})();
+</script>
