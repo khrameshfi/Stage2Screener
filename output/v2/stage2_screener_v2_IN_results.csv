@@ -1,7 +1,5 @@
 Ticker,tv_symbol,signal,regime_ok,index_1y_return,prior_1y_return,weeks_of_data,recent_ipo,bar_status,last_bar_week,market_cap,mrs_confirmed,cross_week_confirmed,above_30ma_confirmed,ma_slope_confirmed,vol_spike_confirmed,mrs_live,cross_week_live,above_30ma_live,ma_slope_live,vol_spike_live,last_close,avg_volume
-EMUDHRA.NS,NSE:EMUDHRA,BOTH,True,-9.93,-13.94,157,False,closed,2026-09-28,47560634920.700005,2.2,2026-09-14,True,up,True,2.2,2026-09-14,True,up,True,579.7,3158238
-PROTEAN.NS,NSE:PROTEAN,BOTH,True,-9.93,-27.51,87,True,closed,2026-09-28,26027302061.25,1.17,2026-09-21,True,down,True,1.17,2026-09-21,True,down,True,638.25,3519753
-RITES.NS,NSE:RITES,BOTH,True,-9.93,-13.88,157,False,closed,2026-09-28,101417008389.48001,0.72,2026-09-28,True,down,True,0.72,2026-09-28,True,down,True,211.02,18454461
-WHIRLPOOL.NS,NSE:WHIRLPOOL,BOTH,True,-9.93,-27.07,157,False,closed,2026-09-28,108516891555.0,0.38,2026-09-21,True,down,True,0.38,2026-09-21,True,down,True,855.0,4499064
-ZOTA.NS,NSE:ZOTA,BOTH,True,-9.93,-16.83,157,False,closed,2026-09-28,43398094769.7,0.38,2026-09-21,True,down,True,0.38,2026-09-21,True,down,True,1253.1,417767
-RHIM.NS,NSE:RHIM,BOTH,True,-9.93,-12.05,157,False,closed,2026-09-28,79833451291.6,0.34,2026-09-21,True,down,True,0.34,2026-09-21,True,down,True,386.6,7792223
+PROTEAN.NS,NSE:PROTEAN,BOTH,True,-10.93,-24.94,88,True,closed,2026-10-05,26125173052.835083,1.21,2026-09-21,True,up,True,1.21,2026-09-21,True,up,True,640.65,3100017
+ZOTA.NS,NSE:ZOTA,BOTH,True,-10.93,-9.1,157,False,closed,2026-10-05,45857007601.17786,0.91,2026-09-21,True,up,True,0.91,2026-09-21,True,up,True,1324.1,418678
+JAIBALAJI.NS,NSE:JAIBALAJI,BOTH,True,-10.93,-30.26,157,False,closed,2026-10-05,62397999203.985214,0.7,2026-10-05,True,up,True,0.7,2026-10-05,True,up,True,68.4,2803291
+RSYSTEMS.NS,NSE:RSYSTEMS,BOTH,True,-10.93,-31.62,157,False,closed,2026-10-05,32503439832.916138,0.17,2026-10-05,True,down,True,0.17,2026-10-05,True,down,True,274.3,10975899
