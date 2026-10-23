@@ -1,8 +1,2 @@
 Ticker,tv_symbol,signal,regime_ok,index_1y_return,prior_1y_return,weeks_of_data,recent_ipo,bar_status,last_bar_week,market_cap,mrs_confirmed,cross_week_confirmed,above_30ma_confirmed,ma_slope_confirmed,vol_spike_confirmed,mrs_live,cross_week_live,above_30ma_live,ma_slope_live,vol_spike_live,last_close,avg_volume
-ORIENTELEC.NS,NSE:ORIENTELEC,BOTH,True,-9.97,-1.64,157,False,closed,2026-10-12,42872211397.93799,1.85,2026-10-05,True,down,True,1.85,2026-10-05,True,down,True,200.91,5065468
-TARIL.NS,NSE:TARIL,BOTH,True,-9.97,-31.96,157,False,closed,2026-10-12,98784577801.46686,1.37,2026-10-05,True,up,True,1.37,2026-10-05,True,up,True,329.1,19648778
-JAIBALAJI.NS,NSE:JAIBALAJI,BOTH,True,-9.97,-22.79,157,False,closed,2026-10-12,65983147602.28226,1.05,2026-10-05,True,up,True,1.05,2026-10-05,True,up,True,72.33,3239578
-ELECON.NS,NSE:ELECON,BOTH,True,-9.97,-11.02,157,False,closed,2026-10-12,107790507745.12848,0.96,2026-10-12,True,up,True,0.96,2026-10-12,True,up,True,480.35,6229061
-BGRENERGY.NS,NSE:BGRENERGY,BOTH,True,-9.97,-22.76,157,False,closed,2026-10-12,22506470005.4541,0.44,2026-10-12,True,down,True,0.44,2026-10-12,True,down,True,311.89,304373
-RITES.NS,NSE:RITES,BOTH,True,-9.97,-12.45,157,False,closed,2026-10-12,100825862520.75009,0.35,2026-09-28,True,up,True,0.35,2026-09-28,True,up,True,209.79,18405006
-WHIRLPOOL.NS,NSE:WHIRLPOOL,BOTH,True,-9.97,-38.22,157,False,closed,2026-10-12,107901330999.79114,0.14,2026-10-12,True,flat,True,0.14,2026-10-12,True,flat,True,850.15,4765617
+ORIENTELEC.NS,NSE:ORIENTELEC,BOTH,True,-12.39,-11.72,157,False,closed,2026-10-19,39129346729.416016,1.08,2026-10-05,True,up,True,1.08,2026-10-05,True,up,True,183.37,5293285
