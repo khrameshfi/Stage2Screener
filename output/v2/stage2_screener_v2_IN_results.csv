@@ -1,3 +1,6 @@
 Ticker,tv_symbol,signal,regime_ok,index_1y_return,prior_1y_return,weeks_of_data,recent_ipo,bar_status,last_bar_week,market_cap,mrs_confirmed,cross_week_confirmed,above_30ma_confirmed,ma_slope_confirmed,vol_spike_confirmed,mrs_live,cross_week_live,above_30ma_live,ma_slope_live,vol_spike_live,last_close,avg_volume
-BOROLTD.NS,NSE:BOROLTD,BOTH,True,-10.38,-16.38,157,False,closed,2026-10-26,34249896215.695038,1.77,2026-10-26,True,up,True,1.77,2026-10-26,True,up,True,286.4,2803891
-FDC.NS,NSE:FDC,BOTH,True,-10.38,-17.12,157,False,closed,2026-10-26,61379401668.0,0.6,2026-10-26,True,up,True,0.6,2026-10-26,True,up,True,377.0,1062021
+BOROLTD.NS,NSE:BOROLTD,BOTH,True,-1.81,-6.19,157,False,closed,2026-11-02,38052785007.609924,2.06,2026-10-26,True,up,True,2.06,2026-10-26,True,up,True,318.2,3385185
+CARTRADE.NS,NSE:CARTRADE,BOTH,True,-1.81,-6.74,157,False,closed,2026-11-02,131262889500.0,0.68,2026-11-02,True,up,True,0.68,2026-11-02,True,up,True,2700.0,2862015
+MOLDTKPAC.NS,NSE:MOLDTKPAC,BOTH,True,-1.81,-1.62,157,False,closed,2026-11-02,22605629788.57361,0.65,2026-11-02,True,up,True,0.65,2026-11-02,True,up,True,340.15,1120048
+TTKPRESTIG.NS,NSE:TTKPRESTIG,BOTH,True,-1.81,-7.93,157,False,closed,2026-11-02,83378286260.0,0.6,2026-11-02,True,up,True,0.6,2026-11-02,True,up,True,608.75,1430040
+FDC.NS,NSE:FDC,BOTH,True,-1.81,-7.31,157,False,closed,2026-11-02,63487794243.22778,0.11,2026-10-26,True,up,True,0.11,2026-10-26,True,up,True,389.95,1082661
