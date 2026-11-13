@@ -1,6 +1,7 @@
 Ticker,tv_symbol,signal,regime_ok,index_1y_return,prior_1y_return,weeks_of_data,recent_ipo,bar_status,last_bar_week,market_cap,mrs_confirmed,cross_week_confirmed,above_30ma_confirmed,ma_slope_confirmed,vol_spike_confirmed,mrs_live,cross_week_live,above_30ma_live,ma_slope_live,vol_spike_live,last_close,avg_volume
-BOROLTD.NS,NSE:BOROLTD,BOTH,True,-1.81,-6.19,157,False,closed,2026-11-02,38052785007.609924,2.06,2026-10-26,True,up,True,2.06,2026-10-26,True,up,True,318.2,3385185
-CARTRADE.NS,NSE:CARTRADE,BOTH,True,-1.81,-6.74,157,False,closed,2026-11-02,131262889500.0,0.68,2026-11-02,True,up,True,0.68,2026-11-02,True,up,True,2700.0,2862015
-MOLDTKPAC.NS,NSE:MOLDTKPAC,BOTH,True,-1.81,-1.62,157,False,closed,2026-11-02,22605629788.57361,0.65,2026-11-02,True,up,True,0.65,2026-11-02,True,up,True,340.15,1120048
-TTKPRESTIG.NS,NSE:TTKPRESTIG,BOTH,True,-1.81,-7.93,157,False,closed,2026-11-02,83378286260.0,0.6,2026-11-02,True,up,True,0.6,2026-11-02,True,up,True,608.75,1430040
-FDC.NS,NSE:FDC,BOTH,True,-1.81,-7.31,157,False,closed,2026-11-02,63487794243.22778,0.11,2026-10-26,True,up,True,0.11,2026-10-26,True,up,True,389.95,1082661
+BOROLTD.NS,NSE:BOROLTD,BOTH,True,-2.96,-6.81,157,False,closed,2026-11-09,37251546433.5,1.77,2026-10-26,True,up,True,1.77,2026-10-26,True,up,True,311.5,3390823
+SHARDAMOTR.NS,NSE:SHARDAMOTR,BOTH,True,-2.96,-3.93,157,False,closed,2026-11-09,55384084363.5,0.8,2026-11-09,True,up,True,0.8,2026-11-09,True,up,True,964.75,522744
+CARTRADE.NS,NSE:CARTRADE,BOTH,True,-2.96,-12.48,157,False,closed,2026-11-09,131073292296.14502,0.64,2026-11-02,True,up,True,0.64,2026-11-02,True,up,True,2696.1,2749431
+BANCOINDIA.NS,NSE:BANCOINDIA,BOTH,True,-2.96,-12.49,157,False,closed,2026-11-09,97344032768.93921,0.57,2026-11-02,True,up,True,0.57,2026-11-02,True,up,True,680.55,947544
+BBL.NS,NSE:BBL,BOTH,True,-2.96,-6.01,157,False,closed,2026-11-09,30777264344.179688,0.33,2026-11-09,True,up,True,0.33,2026-11-09,True,up,True,2722.9,190478
+CHEMPLASTS.NS,NSE:CHEMPLASTS,BOTH,True,-2.96,-31.36,157,False,closed,2026-11-09,37451414021.360596,0.05,2026-11-09,True,down,True,0.05,2026-11-09,True,down,True,236.87,4313382
